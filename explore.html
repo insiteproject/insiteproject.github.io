@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explore Data - INSITE</title>
+    <link rel="icon" type="image/png" href="images/icons/logo.png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="css/material/light.css" rel="stylesheet">
+    <link href="css/style.css?t=1" rel="stylesheet">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body class="light">
+    <!-- Mobile menu button -->
+    <button class="mobile-menu-btn" type="button" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
+                <div class="position-sticky pt-3">
+                    <div class="text-center mb-4">
+                        <img src="images/icons/logo.png" alt="INSITE Logo" class="logo">
+                    </div>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="index.html">
+                                <i class="fas fa-home"></i> Home
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="explore.html">
+                                <i class="fas fa-search"></i> Explore Data
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="predict.html">
+                                <i class="fas fa-magic"></i> Predict
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="optimize.html">
+                                <i class="fas fa-bullseye"></i> Optimize
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Main content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2"><i class="fas fa-search me-2"></i>Explore Data</h1>
+                </div>
+
+                <!-- Compact Filters and Options -->
+                <div class="mb-4 p-3 border rounded-3">
+                    <div class="d-flex flex-wrap gap-3 align-items-end">
+                        <div class="flex-fill">
+                            <label class="form-label small">Perturbation:</label>
+                            <select class="form-select" id="perturbationType">
+                                <option value="all">All</option>
+                            </select>
+                        </div>
+                        <div class="flex-fill">
+                            <label class="form-label small">T-cell:</label>
+                            <select class="form-select" id="tcellSubtype">
+                                <option value="all">All</option>
+                            </select>
+                        </div>
+                        <div class="flex-fill">
+                            <label class="form-label small">Donor:</label>
+                            <select class="form-select" id="donorType">
+                                <option value="all">All</option>
+                            </select>
+                        </div>
+                        <div class="flex-fill">
+                            <label class="form-label small">Time:</label>
+                            <select class="form-select" id="timePoint">
+                                <option value="all">All</option>
+                            </select>
+                        </div>
+                        <div class="flex-fill">
+                            <label class="form-label small">Tissue:</label>
+                            <select class="form-select" id="tissueOrgan">
+                                <option value="all">All</option>
+                            </select>
+                        </div>
+                        <div class="flex-shrink-0">
+                            <button class="btn btn-primary btn-sm" onclick="applyFilters()">
+                                <i class="fas fa-search"></i> Apply
+                            </button>
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <small class="text-muted" id="selectionSummary">
+                            <span id="datasetCount">24</span> records, <span id="cellCount">1,234,567</span> cells
+                        </small>
+                    </div>
+                </div>
+
+                <!-- UMAP Plot -->
+                <div class="card card-surface mb-4">
+                    <div class="card-header">
+                        <h5><i class="fas fa-chart-line"></i> UMAP Plot</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="umapPlot" style="height: 500px;"></div>
+                    </div>
+                </div>
+
+                <!-- Expression Heatmap -->
+                <div class="card card-surface mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5><i class="fas fa-fire"></i> Expression Profile</h5>
+                        <button class="btn btn-outline-secondary btn-sm" onclick="toggleHeatmapView('exploreHeatmap')" id="exploreHeatmapCollapseBtn">
+                            <i class="fas fa-compress-alt"></i> Collapse
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted mb-3">
+                            <small>Gene expression profile for the selected cell populations. Expression values are weighted averages across all matching datasets.</small>
+                        </p>
+                        <div id="exploreHeatmap" class="heatmap-container">
+                            <!-- Expression heatmap will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Volcano Plot -->
+                <div class="card card-surface mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5><i class="fas fa-chart-line"></i> Volcano Plot</h5>
+                        <div class="d-flex gap-3">
+                            <div>
+                                <label class="form-label small mb-1">Variable:</label>
+                                <select class="form-select" id="volcanoVariable" onchange="updateVolcanoOptions()">
+                                    <option value="control_vs_treated">Control vs Treated</option>
+                                    <option value="tcell_subtype">T-cell subtype</option>
+                                    <option value="time_point">Time point</option>
+                                    <option value="donor_type">Donor type</option>
+                                    <option value="tissue_organ">Tissue/organ</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="form-label small mb-1">Baseline:</label>
+                                <select class="form-select" id="volcanoBaseline" onchange="updateVolcanoPlot()">
+                                    <option value="control">Control</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="form-label small mb-1">Target:</label>
+                                <select class="form-select" id="volcanoTarget" onchange="updateVolcanoPlot()">
+                                    <option value="treated">Treated</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body text-center">
+                        <img id="volcanoPlot" src="" class="img-fluid volcano-plot" alt="Volcano Plot">
+                        <!-- <div class="mt-2">
+                            <small class="text-muted">Differential gene expression analysis showing log fold change vs significance</small>
+                        </div> -->
+                    </div>
+                </div>
+
+                <!-- Selected Datasets -->
+                <div class="card card-surface">
+                    <div class="card-header">
+                        <h5><i class="fas fa-database"></i> Selected Records</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="datasetList">
+                            <!-- Records will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/common.js"></script>
+    <script src="js/explore.js"></script>
+</body>
+</html>

@@ -1,0 +1,147 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "INSITE Datasets Schema",
+  "description": "Schema for INSITE dataset repository structure",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "id_on_repo": {
+        "type": "string",
+        "description": "Record's ID on the repository (e.g., '5461803')"
+      },
+      "repo_name": {
+        "type": "string",
+        "description": "Name of the repository (e.g., 'zenodo', 'figshare', 'GEO')"
+      },
+      "record_name": {
+        "type": "string",
+        "description": "Human-readable name of the repository/dataset collection"
+      },
+      "url": {
+        "type": "string",
+        "format": "uri",
+        "description": "URL to the repository or dataset collection"
+      },
+      "description": {
+        "type": "string",
+        "description": "Detailed description of the repository/dataset collection. Note: In some records may be primarily observational with few or no perturbations (mostly 'control' perturbation_type), while others may contain extensive perturbation experiments."
+      },
+      "data_objects": {
+        "type": "array",
+        "description": "Array of individual data objects within this repository",
+        "items": {
+          "type": "object",
+          "properties": {          
+            "perturbation_type": {
+              "type": "string",
+              "description": "Type of perturbation applied (e.g., 'CRISPR', 'CRISPRa', 'CRISPRi', 'drug', 'TCR', 'miRNA', 'control' (when no perturbation), 'unknown'). Note: In some records are observational and will have predominantly 'control' values with few or no actual perturbations."
+            },
+            "perturbation_extra_info": {
+              "type": "object",
+              "description": "Additional information about the perturbation (e.g., 'knockout_target' for the knockout target genes as dictionary key)",
+              "additionalProperties": true
+            },
+            "t_cell_subtype": {
+              "type": "string",
+              "description": "T-cell subtype (e.g., 'CD4', 'CD8', 'unknown')"
+            },
+            "t_cell_subtype_extra_info": {
+              "type": "object",
+              "description": "Additional information about the T-cell subtype (e.g., 'naive', 'memory', 'effector')",
+              "additionalProperties": true
+            },
+            "donor_type": {
+              "type": "string",
+              "description": "Type of donor (e.g., 'healthy', 'cancer', 'autoimmune', 'elderly', 'pediatric', 'unknown')"
+            },
+            "donor_extra_info": {
+              "type": "object",
+              "description": "Additional information about the donor (e.g., 'age', 'sex', 'disease_stage' as dictionary keys)",
+              "additionalProperties": true
+            },
+            "time_point": {
+              "type": "string",
+              "description": "Time point of measurement (e.g., '0h', '24h', '48h', 'unknown')"
+            },
+            "location": {
+              "type": "string",
+              "description": "Source tissue or organ (e.g., 'blood', 'tumor', 'skin', 'lung', 'liver', 'bone-marrow', 'unknown')"
+            },
+            "cell_count": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Number of cells in the dataset"
+            },
+            "extra_info": {
+              "type": "object",
+              "description": "Additional metadata specific to the data object",
+              "additionalProperties": true
+            },
+            "anndata_object": {
+              "type": "object",
+              "description": "Gene expression AnnData object information. This must be single-cell gene expression data with genes as features and individual cells as observations, typically containing ~20,000 genes but may have fewer.",
+              "properties": {
+                "h5ad_path": {
+                  "type": "string",
+                  "description": "Path to the .h5ad file within the repository. The path starts with 'data/'."
+                },
+                "var_columns": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "List of column names in adata.var (gene/feature metadata column headers)"
+                },
+                "obs_columns": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "List of column names in adata.obs (cell/observation metadata column headers)"
+                },
+                "n_obs": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "description": "Number of observations (cells) in the AnnData object"
+                },
+                "n_vars": {
+                  "type": "integer", 
+                  "minimum": 1,
+                  "description": "Number of variables (genes/features) in the AnnData object"
+                }
+              },
+              "required": [
+                "h5ad_path",
+                "var_columns", 
+                "obs_columns",
+                "n_obs",
+                "n_vars"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "perturbation_type",
+            "t_cell_subtype",
+            "donor_type",
+            "time_point",
+            "location",
+            "cell_count",
+            "anndata_object"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "required": [
+      "id_on_repo",
+      "repo_name",
+      "record_name",
+      "url",
+      "description",
+      "data_objects"
+    ],
+    "additionalProperties": false
+  }
+}

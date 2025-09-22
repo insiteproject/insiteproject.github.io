@@ -1,0 +1,12 @@
+[
+  "ACTB", "ACTIN", "AKT1", "AKT2", "AKT3", "APOE", "ATM", "BAX", "BCL2", "BRCA1",
+  "BRCA2", "CASP3", "CASP8", "CASP9", "CCL2", "CCL5", "CCR7", "CD3D", "CD3E", "CD3G",
+  "CD4", "CD8A", "CD8B", "CD19", "CD20", "CD25", "CD28", "CD40", "CD44", "CD45",
+  "CD62L", "CD69", "CD80", "CD86", "CDKN1A", "CDKN2A", "CTLA4", "CXCL10", "CXCR3", "CXCR4",
+  "EGFR", "EGR1", "EGR2", "FAS", "FASL", "FOXP3", "GAPDH", "GATA3", "GZMB", "HLA-A",
+  "HLA-B", "HLA-C", "HLA-DR", "ICAM1", "IFNG", "IL2", "IL4", "IL6", "IL10", "IL12",
+  "IL15", "IL17", "IL21", "IRF4", "JAK1", "JAK2", "JAK3", "JUN", "KRAS", "LAG3",
+  "LCK", "LEF1", "LYN", "MAPK1", "MAPK3", "MYC", "NFAT1", "NFKB1", "NRAS", "P53",
+  "PDCD1", "PIK3CA", "PTEN", "RAF1", "RAS", "RORC", "RUNX1", "RUNX3", "STAT1", "STAT3",
+  "STAT4", "STAT5", "STAT6", "TBX21", "TCF7", "TGFB1", "TNF", "TNFR1", "TP53", "ZAP70"
+]
