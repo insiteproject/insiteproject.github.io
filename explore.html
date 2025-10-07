@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explore Data - INSITE</title>
+    <link rel="icon" type="image/png" href="images/icons/logo.png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="css/material/light.css" rel="stylesheet">
+    <link href="css/style.css?t=1" rel="stylesheet">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script type="module">
+        // Import the t-test library for statistical analysis
+        window.ttest = (await import('https://cdn.jsdelivr.net/gh/stdlib-js/stats-ttest@esm/index.mjs')).default;
+    </script>
+</head>
+<body class="light">
+    <!-- Loading spinner - shown immediately -->
+    <div id="loadingSpinner" class="loading-spinner-overlay show">
+        <div class="loading-spinner-content">
+            <div class="loading-spinner">
+                <i class="fas fa-spinner fa-spin"></i>
+            </div>
+            <div class="loading-message">Loading page...</div>
+        </div>
+    </div>
+    <!-- Mobile menu button -->
+    <button class="mobile-menu-btn" type="button" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
+                <div class="position-sticky pt-3">
+                    <div class="text-center mb-4">
+                        <img src="images/icons/logo.png" alt="INSITE Logo" class="logo">
+                    </div>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="index.html">
+                                <i class="fas fa-home"></i> Home
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="explore.html">
+                                <i class="fas fa-search"></i> Explore Data
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="predict.html">
+                                <i class="fas fa-magic"></i> Predict
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="optimize.html">
+                                <i class="fas fa-bullseye"></i> Optimize
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Main content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2"><i class="fas fa-search me-2"></i>Explore Data</h1>
+                </div>
+
+                <!-- Multi-row Filters -->
+                <div class="mb-4 p-3 border rounded-3">
+                    <div id="filterRows">
+                        <!-- First filter row (red) -->
+                        <div class="filter-row mb-3" data-row="0" data-color="red">
+                            <div class="d-flex flex-wrap gap-3 align-items-end">
+                                <div class="flex-fill">
+                                    <label class="form-label small">Perturbation:</label>
+                                    <select class="form-select" id="perturbationType_0">
+                                        <option value="all">All</option>
+                                    </select>
+                                </div>
+                                <div class="flex-fill">
+                                    <label class="form-label small">T-cell:</label>
+                                    <select class="form-select" id="tcellSubtype_0">
+                                        <option value="all">All</option>
+                                    </select>
+                                </div>
+                                <div class="flex-fill">
+                                    <label class="form-label small">Donor:</label>
+                                    <select class="form-select" id="donorType_0">
+                                        <option value="all">All</option>
+                                    </select>
+                                </div>
+                                <div class="flex-fill" style="display: none;">
+                                    <label class="form-label small">Time:</label>
+                                    <select class="form-select" id="timePoint_0">
+                                        <option value="all">All</option>
+                                    </select>
+                                </div>
+                                <div class="flex-fill">
+                                    <label class="form-label small">Tissue:</label>
+                                    <select class="form-select" id="tissueOrgan_0">
+                                        <option value="all">All</option>
+                                    </select>
+                                </div>
+                                <div class="flex-shrink-0" style="width: 80px;">
+                                    <div class="d-flex gap-1">
+                                        <button class="btn btn-success btn-sm" onclick="addFilterRow()" id="addRowBtn">
+                                            <i class="fas fa-plus"></i>
+                                        </button>
+                                        <button class="btn btn-danger btn-sm" style="visibility: hidden;" disabled>
+                                            <i class="fas fa-minus"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <button class="btn btn-primary btn-sm" onclick="applyFilters()">
+                            <i class="fas fa-sync-alt"></i> Apply
+                        </button>
+                        <small class="text-muted" id="selectionSummary">
+                            <span id="datasetCount">-</span> records, <span id="cellCount">-</span> cells
+                        </small>
+                    </div>
+                </div>
+
+                <!-- UMAP Plot -->
+                <div class="card card-surface mb-4">
+                    <div class="card-header">
+                        <h5><i class="fas fa-chart-line"></i> UMAP Plot</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="umapPlot" style="height: 500px;"></div>
+                    </div>
+                </div>
+
+                <!-- Expression Heatmap Container -->
+                <div id="expressionProfilesContainer">
+                    <!-- Expression profile cards will be populated by JavaScript -->
+                </div>
+
+                <!-- Volcano Plot -->
+                <div class="card card-surface mb-4" id="volcanoCard" style="display: none;">
+                    <div class="card-header">
+                        <h5><i class="fas fa-chart-line"></i> Differential Expression Analysis</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="volcanoPlotContainer" style="height: 500px;"></div>
+                        <div class="mt-2">
+                            <small class="text-muted" id="volcanoDescription">Differential gene expression analysis between the two selected filter sets. Points represent genes, with log2 fold change on x-axis and -log10 p-value on y-axis.</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Selected Datasets -->
+                <div class="card card-surface">
+                    <div class="card-header">
+                        <h5><i class="fas fa-database"></i> Selected Records</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="datasetList">
+                            <!-- Records will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/common.js"></script>
+    <script src="js/explore.js"></script>
+
+    <!-- Footer -->
+    <footer class="bg-light border-top mt-5 py-3">
+        <div class="container-fluid">
+            <div class="text-center text-muted small">
+                © 2025 Amir Asiaee and Kaveh Aryan - Independent research output, provided without warranty.
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

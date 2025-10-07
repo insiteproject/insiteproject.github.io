@@ -1,0 +1,816 @@
+/* Custom styles for INSITE using Material Design */
+.sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 100;
+    padding: 48px 0 0;
+    background-color: var(--md-sys-color-surface-container);
+    box-shadow: var(--md-sys-elevation-level2);
+    transition: transform 0.3s ease-in-out;
+}
+
+.sidebar .nav-link {
+    font-weight: 500;
+    color: var(--md-sys-color-on-surface);
+    padding: 0.75rem 1rem;
+    margin: 0.25rem 0;
+    border-radius: 12px;
+    transition: all 0.2s ease-in-out;
+}
+
+.sidebar .nav-link:hover {
+    color: var(--md-sys-color-primary);
+    background-color: var(--md-sys-color-primary-container);
+}
+
+.sidebar .nav-link.active {
+    color: var(--md-sys-color-on-primary-container);
+    background-color: var(--md-sys-color-primary-container);
+}
+
+.sidebar .nav-link i {
+    margin-right: 0.5rem;
+}
+
+main {
+    margin-left: 240px;
+}
+
+/* Mobile menu button */
+.mobile-menu-btn {
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    z-index: 1050;
+    background: var(--md-sys-color-primary);
+    border: none;
+    color: var(--md-sys-color-on-primary);
+    padding: 12px;
+    border-radius: 12px;
+    display: none;
+    box-shadow: var(--md-sys-elevation-level2);
+    transition: all 0.2s ease-in-out;
+}
+
+.mobile-menu-btn:hover {
+    background: var(--md-sys-color-primary-container);
+    color: var(--md-sys-color-on-primary-container);
+    box-shadow: var(--md-sys-elevation-level3);
+}
+
+@media (max-width: 767.98px) {
+    .mobile-menu-btn {
+        display: block;
+    }
+    
+    .sidebar {
+        transform: translateX(-100%);
+        padding-top: 60px;
+    }
+    
+    .sidebar.show {
+        transform: translateX(0);
+    }
+    
+    main {
+        margin-left: 0;
+        padding-top: 60px;
+    }
+}
+
+/* Card hover effects */
+.card {
+    background-color: var(--md-sys-color-surface-container-low);
+    border: 1px solid var(--md-sys-color-outline-variant);
+    -border-radius: 12px;
+    transition: all 0.2s ease-in-out;
+    box-shadow: var(--md-sys-elevation-level1);
+}
+
+.card:hover {
+    box-shadow: var(--md-sys-elevation-level2);
+}
+
+.card-header {
+    background-color: var(--md-sys-color-surface-container);
+    border-bottom: 1px solid var(--md-sys-color-outline-variant);
+    color: var(--md-sys-color-on-surface);
+}
+
+.card-body {
+    color: var(--md-sys-color-on-surface);
+}
+
+/* Custom button styles */
+.btn-primary {
+    background-color: var(--md-sys-color-primary);
+    border-color: var(--md-sys-color-primary);
+    color: var(--md-sys-color-on-primary);
+    border-radius: 20px;
+    padding: 8px 24px;
+    font-weight: 500;
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-primary:hover {
+    background-color: var(--md-sys-color-primary-container);
+    border-color: var(--md-sys-color-primary-container);
+    color: var(--md-sys-color-on-primary-container);
+    box-shadow: var(--md-sys-elevation-level2);
+}
+
+/* Form styling */
+.form-select, .form-control {
+    border-radius: 12px;
+    border: 1px solid var(--md-sys-color-outline);
+    background-color: var(--md-sys-color-surface-container-highest);
+    color: var(--md-sys-color-on-surface);
+    transition: all 0.2s ease-in-out;
+}
+
+.form-select:focus, .form-control:focus {
+    border-color: var(--md-sys-color-primary);
+    box-shadow: 0 0 0 0.2rem var(--md-sys-color-primary-container);
+}
+
+.form-label {
+    color: var(--md-sys-color-on-surface);
+    font-weight: 500;
+}
+
+/* Disabled form control styling */
+.form-control:disabled, .form-select:disabled, .btn:disabled {
+    background-color: var(--md-sys-color-surface-variant) !important;
+    border-color: var(--md-sys-color-outline-variant) !important;
+    color: var(--md-sys-color-on-surface-variant) !important;
+    opacity: 1 !important;
+}
+
+/* Alert styling */
+.alert-info {
+    background-color: var(--md-sys-color-tertiary-container);
+    border-color: var(--md-sys-color-tertiary);
+    color: var(--md-sys-color-on-tertiary-container);
+    border-radius: 12px;
+}
+
+/* Compact filter toolbar */
+.border {
+    border-color: var(--md-sys-color-outline-variant) !important;
+}
+
+.rounded-3 {
+    background-color: var(--md-sys-color-surface-container-low);
+}
+
+.form-select-sm {
+    font-size: 0.875rem;
+    padding: 0.375rem 0.75rem;
+}
+
+.btn-sm {
+    font-size: 0.875rem;
+    padding: 0.375rem 0.75rem;
+}
+
+/* Image styling */
+img.img-fluid {
+    border-radius: 12px;
+    box-shadow: var(--md-sys-elevation-level1);
+}
+
+/* Logo styling */
+.logo {
+    height: 120px;
+    width: auto;
+}
+
+.umap-plot {
+    max-height: 600px;
+    border-radius: 12px;
+}
+
+/* Additional Material Design styling */
+body {
+    background-color: var(--md-sys-color-surface);
+    color: var(--md-sys-color-on-surface);
+    margin-bottom: 5px;
+}
+
+main {
+    background-color: var(--md-sys-color-surface);
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: var(--md-sys-color-on-surface);
+}
+
+.text-primary {
+    color: var(--md-sys-color-primary) !important;
+}
+
+.text-success {
+    color: var(--md-sys-color-secondary) !important;
+}
+
+.bg-primary {
+    background-color: var(--md-sys-color-primary) !important;
+}
+
+.bg-success {
+    background-color: var(--md-sys-color-secondary) !important;
+}
+
+#volcanoPlot, #umapPlot {
+    width: 800px;
+}
+
+/* Unified heatmap grid styling */
+.heatmap-grid {
+    display: flex;
+    flex-wrap: wrap;
+    max-width: 100%;
+}
+
+.heatmap-grid-collapsed {
+    display: flex;
+    overflow-x: auto;
+    padding-bottom: 10px;
+    max-width: 100%;
+}
+
+.heatmap-grid-collapsed .heatmap-cell {
+    flex-shrink: 0;
+    min-width: 20px;
+    width: 20px;
+}
+
+.heatmap-cell {
+    position: relative;
+    border: 1px solid var(--md-sys-color-outline);
+    padding: 2px;
+    text-align: center;
+    transition: all 0.2s ease-in-out;
+    min-height: 80px;
+    width: 20px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    font-size: 0.6rem;
+    cursor: default;
+}
+
+.heatmap-cell:last-child {
+    border-right: 1px solid var(--md-sys-color-outline);
+}
+
+.heatmap-grid .heatmap-cell:nth-last-child(-n+20) {
+    border-bottom: 1px solid var(--md-sys-color-outline);
+}
+
+.heatmap-cell.interactive {
+    cursor: pointer;
+}
+
+.heatmap-cell.interactive:hover {
+    border-color: var(--md-sys-color-primary);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.heatmap-cell.knocked-out {
+    background-color: #f5f5f5 !important;
+    color: #999 !important;
+    border-color: #ccc;
+}
+
+.heatmap-gene-name {
+    font-weight: bold;
+    font-size: 0.5rem;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    transform: rotate(180deg);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-height: 60px;
+    line-height: 1;
+}
+
+.heatmap-expression {
+    display: none;
+}
+
+.uncertainty-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+
+.uncertainty-value {
+    display: none;
+}
+
+.heatmap-tooltip {
+    position: absolute;
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    white-space: nowrap;
+    z-index: 1000;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.heatmap-tooltip.show {
+    opacity: 1;
+}
+
+.knockout-slash {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, transparent 45%, #ff0000 45%, #ff0000 55%, transparent 55%);
+    pointer-events: none;
+    border-radius: 8px;
+}
+
+/* Expression level colors */
+.expr-low {
+    background-color: #e3f2fd;
+    -color: #1565c0;
+}
+
+.expr-low-med {
+    background-color: #bbdefb;
+    -color: #1976d2;
+}
+
+.expr-medium {
+    background-color: #fff3e0;
+    -color: #f57c00;
+}
+
+.expr-med-high {
+    background-color: #ffccbc;
+    -color: #e64a19;
+}
+
+.expr-high {
+    background-color: #ffebee;
+    -color: #c62828;
+}
+
+/* Uncertainty level colors (using purple-orange colormap) */
+.uncert-very-low {
+    background-color: #440154;
+    color: white;
+}
+
+.uncert-low {
+    background-color: #31688e;
+    color: white;
+}
+
+.uncert-medium {
+    background-color: #35b779;
+    color: white;
+}
+
+.uncert-high {
+    background-color: #fde725;
+    color: black;
+}
+
+.uncert-very-high {
+    background-color: #ff6600;
+    color: white;
+}
+
+/* Heatmap container styling */
+.heatmap-container {
+    width: 100%;
+}
+
+.heatmap-title {
+    font-weight: bold;
+    margin-bottom: 10px;
+    text-align: center;
+    font-size: 1.1rem;
+}
+
+.heatmap-cell.empty {
+    border: none;
+    background: none;
+}
+
+/* Colorbar styling */
+.heatmap-colorbars {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 15px;
+    padding: 10px;
+    background-color: var(--md-sys-color-surface-container-low);
+    border-radius: 8px;
+    border: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.colorbar-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.colorbar-label {
+    font-size: 0.8rem;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: var(--md-sys-color-on-surface);
+}
+
+.colorbar {
+    display: flex;
+    border-radius: 4px;
+    overflow: hidden;
+    border: 1px solid var(--md-sys-color-outline);
+}
+
+.colorbar-item {
+    padding: 4px 8px;
+    font-size: 0.7rem;
+    font-weight: 500;
+    text-align: center;
+    min-width: 40px;
+}
+
+/* Optimize page specific styles */
+.clickable-umap {
+    cursor: crosshair;
+    position: relative;
+}
+
+#optimizeUmapPlot {
+    width: 500px;
+}
+
+.target-overlay {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    border: 3px solid #28a745;
+    border-radius: 50%;
+    background-color: rgba(40, 167, 69, 0.2);
+    pointer-events: none;
+    z-index: 10;
+}
+
+.original-target {
+    border: 3px solid #28a745 !important;
+    background-color: rgba(40, 167, 69, 0.2) !important;
+}
+
+.result-overlay {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    border: 2px solid;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 11;
+    opacity: 0.8;
+}
+
+.gene-combination-compact {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1px;
+}
+
+.gene-combination-compact .badge {
+    font-size: 0.65rem !important;
+    padding: 2px 4px;
+}
+
+.result-row:hover {
+    background-color: var(--md-sys-color-surface-container-low) !important;
+}
+
+.gene-combination {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px;
+}
+
+.gene-combination .badge {
+    font-size: 0.75rem;
+}
+
+/* Results table styling */
+.table-responsive {
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.table {
+    margin-bottom: 0;
+}
+
+.table th {
+    background-color: var(--md-sys-color-surface-container);
+    color: var(--md-sys-color-on-surface);
+    border-color: var(--md-sys-color-outline-variant);
+    font-weight: 600;
+}
+
+.table td {
+    border-color: var(--md-sys-color-outline-variant);
+    vertical-align: middle;
+}
+
+.table-striped > tbody > tr:nth-of-type(odd) > td {
+    background-color: var(--md-sys-color-surface-container-low);
+}
+
+/* Feature card styles */
+.explore-card i {
+    color: var(--md-sys-color-primary) !important;
+}
+
+.explore-card .btn {
+    background-color: var(--md-sys-color-primary);
+    border-color: var(--md-sys-color-primary);
+    color: var(--md-sys-color-on-primary);
+    border-radius: 20px;
+    padding: 8px 24px;
+    font-weight: 500;
+    transition: all 0.2s ease-in-out;
+}
+
+.explore-card .btn:hover {
+    background-color: var(--md-sys-color-primary-container);
+    border-color: var(--md-sys-color-primary-container);
+    color: var(--md-sys-color-on-primary-container);
+    box-shadow: var(--md-sys-elevation-level2);
+}
+
+.predict-card i {
+    color: var(--md-extended-color-predict-color) !important;
+}
+
+.predict-card .btn {
+    background-color: var(--md-extended-color-predict-color);
+    border-color: var(--md-extended-color-predict-color);
+    color: var(--md-sys-color-on-secondary);
+    border-radius: 20px;
+    padding: 8px 24px;
+    font-weight: 500;
+    transition: all 0.2s ease-in-out;
+}
+
+.predict-card .btn:hover {
+    background-color: var(--md-extended-color-predict-color-container);
+    border-color: var(--md-extended-color-predict-color-container);
+    color: var(--md-extended-color-predict-on-color-container);
+    box-shadow: var(--md-sys-elevation-level2);
+}
+
+.optimize-card i {
+    color: var(--md-extended-color-optimize-color) !important;
+}
+
+.optimize-card .btn {
+    background-color: var(--md-extended-color-optimize-color);
+    border-color: var(--md-extended-color-optimize-color);
+    color: var(--md-extended-color-optimize-on-color);
+    border-radius: 20px;
+    padding: 8px 24px;
+    font-weight: 500;
+    transition: all 0.2s ease-in-out;
+}
+
+.optimize-card .btn:hover {
+    background-color: var(--md-extended-color-optimize-color-container);
+    border-color: var(--md-extended-color-optimize-color-container);
+    color: var(--md-extended-color-optimize-on-color-container);
+    box-shadow: var(--md-sys-elevation-level2);
+}
+
+/* Editable heatmap cell styles */
+.editable-cell {
+    position: relative;
+    min-height: 100px;
+    width: 60px;
+}
+
+.expression-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+    margin-top: 2px;
+}
+
+.expression-btn {
+    background: var(--md-sys-color-primary);
+    color: var(--md-sys-color-on-primary);
+    border: none;
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    font-size: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease-in-out;
+    z-index: 10;
+}
+
+.expression-btn:hover {
+    background: var(--md-sys-color-primary-container);
+    color: var(--md-sys-color-on-primary-container);
+    transform: scale(1.1);
+}
+
+.expression-btn:active {
+    transform: scale(0.95);
+}
+
+.expression-value {
+    font-size: 0.7rem;
+    font-weight: bold;
+    color: var(--md-sys-color-on-surface);
+    cursor: pointer;
+    padding: 1px 3px;
+    border-radius: 3px;
+    transition: background-color 0.2s ease-in-out;
+    min-width: 20px;
+    text-align: center;
+}
+
+.expression-value:hover {
+    background-color: var(--md-sys-color-primary-container);
+    color: var(--md-sys-color-on-primary-container);
+}
+
+.edited-cell {
+    border: 2px solid var(--md-sys-color-tertiary) !important;
+    box-shadow: 0 0 4px rgba(0,0,0,0.2);
+}
+
+.edited-indicator {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    font-size: 8px;
+    color: var(--md-sys-color-tertiary);
+    background: var(--md-sys-color-tertiary-container);
+    border-radius: 50%;
+    width: 12px;
+    height: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}
+
+/* Adjust heatmap grid for editable cells */
+.heatmap-grid .editable-cell {
+    width: 60px;
+    min-height: 100px;
+}
+
+.heatmap-grid-collapsed .editable-cell {
+    width: 40px;
+    min-height: 80px;
+}
+
+.heatmap-grid-collapsed .expression-controls {
+    gap: 0;
+}
+
+.heatmap-grid-collapsed .expression-btn {
+    width: 12px;
+    height: 12px;
+    font-size: 8px;
+}
+
+.heatmap-grid-collapsed .expression-value {
+    font-size: 0.6rem;
+}
+
+/* Loading spinner overlay */
+.loading-spinner-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.loading-spinner-overlay.show {
+    opacity: 1;
+}
+
+.loading-spinner-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: var(--md-sys-color-surface-container);
+    padding: 2rem;
+    border-radius: 16px;
+    box-shadow: var(--md-sys-elevation-level3);
+    min-width: 200px;
+}
+
+.loading-spinner {
+    font-size: 3rem;
+    color: var(--md-sys-color-primary);
+    margin-bottom: 1rem;
+}
+
+.loading-spinner i {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.loading-message {
+    color: var(--md-sys-color-on-surface);
+    font-size: 1.1rem;
+    font-weight: 500;
+    text-align: center;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .heatmap-cell {
+        min-height: 50px;
+        width: 50px;
+        font-size: 0.7rem;
+    }
+    
+    .editable-cell {
+        width: 50px;
+        min-height: 80px;
+    }
+    
+    .expression-btn {
+        width: 14px;
+        height: 14px;
+        font-size: 9px;
+    }
+    
+    .expression-value {
+        font-size: 0.6rem;
+    }
+    
+    .clickable-umap {
+        max-width: 100%;
+        height: auto;
+    }
+    
+    .target-overlay {
+        width: 20px;
+        height: 20px;
+    }
+    
+    /* Add vertical spacing between cards on mobile */
+    .col-md-4 {
+        margin-bottom: 1rem;
+    }
+    
+    .loading-spinner-content {
+        padding: 1.5rem;
+        min-width: 150px;
+    }
+    
+    .loading-spinner {
+        font-size: 2.5rem;
+    }
+    
+    .loading-message {
+        font-size: 1rem;
+    }
+}
