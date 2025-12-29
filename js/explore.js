@@ -287,13 +287,17 @@ function initializeUmapPlot() {
         yaxis: { title: 'UMAP 2' },
         hovermode: 'closest',
         plot_bgcolor: 'white',
-        paper_bgcolor: 'white'
+        paper_bgcolor: 'white',
+        width: 800,
+        height: 500,
+        dragmode: 'pan'
     };
 
     const config = {
-        responsive: true,
+        responsive: false,
         displayModeBar: true,
-        modeBarButtonsToRemove: ['pan2d', 'select2d', 'lasso2d', 'autoScale2d']
+        modeBarButtonsToRemove: ['select2d', 'lasso2d', 'autoScale2d'],
+        scrollZoom: true
     };
 
     Plotly.newPlot('umapPlot', [trace], layout, config);
@@ -637,9 +641,10 @@ function createVolcanoPlot(deResults, filterSet1, filterSet2) {
     };
     
     const config = {
-        responsive: true,
+        responsive: false,
         displayModeBar: true,
-        modeBarButtonsToRemove: ['pan2d', 'select2d', 'lasso2d', 'autoScale2d']
+        modeBarButtonsToRemove: ['select2d', 'lasso2d', 'autoScale2d'],
+        scrollZoom: true
     };
     
     Plotly.newPlot('volcanoPlotContainer', traces, layout, config);
