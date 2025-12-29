@@ -431,6 +431,18 @@ h1, h2, h3, h4, h5, h6 {
     align-items: center;
 }
 
+/* Responsive colorbar layout */
+@media (max-width: 768px) {
+    .heatmap-colorbars {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .colorbar-container {
+        width: 100%;
+    }
+}
+
 .colorbar-label {
     font-size: 0.8rem;
     font-weight: bold;
