@@ -192,7 +192,8 @@ function generatePredictImageName(filters, selectedGenes, colorBy = 'tcell_subty
 async function loadGenes() {
     try {
         genes = await dataService.loadGenes();
-        genes.sort(); // Sort alphabetically
+        // Keep gene order identical to highly_variable_genes_list.json because
+        // causal matrices and mean_expression_profile are aligned to that order.
         // Don't compute expression here - wait for UI to be initialized
     } catch (error) {
         console.error('Error loading genes:', error);
@@ -480,7 +481,7 @@ function renderPredictedHeatmap() {
 
 
 // Toggle heatmap view between grid and collapsed (single row)
-function toggleHeatmapView(containerId) {
+function togglePredictHeatmapView(containerId) {
     let rerenderCallback;
     
     if (containerId === 'predictedHeatmap') {

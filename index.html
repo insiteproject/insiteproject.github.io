@@ -45,6 +45,16 @@
                                 <i class="fas fa-bullseye"></i> Optimize
                             </a>
                         </li>
+                        <li class="nav-item mt-3 border-top pt-3">
+                            <a class="nav-link" href="help.html">
+                                <i class="fas fa-question-circle"></i> Help
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="about.html">
+                                <i class="fas fa-info-circle"></i> About
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </nav>
@@ -52,23 +62,67 @@
             <!-- Main content -->
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
                 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                    <h1 class="h2">INSITE: Integrating scRNAseq for Tcell Engineering</h1>
+                    <h1 class="h2">Welcome to INSITE</h1>
                 </div>
 
-                <div class="row justify-content-center">
-                    <div class="col-12">
+                <div class="row">
+                    <div class="col-lg-8">
                         <div class="card card-surface">
                             <div class="card-body">
-                                <div class="row align-items-start">
-                                    <div class="col-md-8 order-1">
-                                        <img src="images/workflow.jpeg" alt="INSITE Workflow" class="img-fluid" style="max-width: 100%;">
+                                <h5 class="card-title">T-cell scRNA-seq Analysis Platform</h5>
+                                <p class="card-text">
+                                    INSITE provides comprehensive analysis tools for T-cell single-cell RNA sequencing data,
+                                    with focus on perturbation effects and cellular responses.
+                                </p>
+                                <div class="row mt-4">
+                                    <div class="col-md-4">
+                                        <div class="card card-surface h-100 explore-card">
+                                            <div class="card-body text-center d-flex flex-column">
+                                                <i class="fas fa-search fa-2x mb-2"></i>
+                                                <h6>Explore Data</h6>
+                                                <p class="small flex-grow-1">Interactive visualization of T-cell datasets</p>
+                                                <a href="explore.html" class="btn btn-sm mt-auto">Get Started</a>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="col-md-4 order-2">
-                                        <p class="card-text" style="font-size: 0.75rem;">
-                                            INSITE provides comprehensive analysis tools for T-cell single-cell RNA sequencing data,
-                                            with focus on perturbation effects and cellular responses. Use the navigation menu to explore
-                                            datasets, predict perturbation effects, or optimize gene targets for desired outcomes.
-                                        </p>
+                                    <div class="col-md-4">
+                                        <div class="card card-surface h-100 predict-card">
+                                            <div class="card-body text-center d-flex flex-column">
+                                                <i class="fas fa-magic fa-2x mb-2"></i>
+                                                <h6>Predict</h6>
+                                                <p class="small flex-grow-1">Predict perturbation effects on T-cell populations</p>
+                                                <a href="predict.html" class="btn btn-sm mt-auto">Get Started</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="card card-surface h-100 optimize-card">
+                                            <div class="card-body text-center d-flex flex-column">
+                                                <i class="fas fa-bullseye fa-2x mb-2"></i>
+                                                <h6>Optimize</h6>
+                                                <p class="small flex-grow-1">Find optimal gene targets for desired outcomes</p>
+                                                <a href="optimize.html" class="btn btn-sm mt-auto">Get Started</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="card card-surface">
+                            <div class="card-header">
+                                <h6>Data Statistics</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row text-center">
+                                    <div class="col-6">
+                                        <h4 class="text-primary" id="recordCount">-</h4>
+                                        <small>Records</small>
+                                    </div>
+                                    <div class="col-6">
+                                        <h4 class="text-success" id="totalCells">-</h4>
+                                        <small>Cells</small>
                                     </div>
                                 </div>
                             </div>
@@ -82,17 +136,55 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/common.js"></script>
     <script>
-        // Initialize common components
-        document.addEventListener('DOMContentLoaded', function() {
-            // Page is ready
+        // Load and display dataset statistics on page load
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                const datasets = await dataService.loadDatasets();
+                const stats = await dataService.getStatistics(datasets);
+                
+                // Update record count
+                document.getElementById('recordCount').textContent = stats.recordCount;
+                
+                // Format cell count (e.g., 1.2M, 500K, etc.)
+                const formatCellCount = (count) => {
+                    if (count >= 1000000) {
+                        return (count / 1000000).toFixed(1) + 'M';
+                    } else if (count >= 1000) {
+                        return (count / 1000).toFixed(0) + 'K';
+                    } else {
+                        return count.toString();
+                    }
+                };
+                
+                document.getElementById('totalCells').textContent = formatCellCount(stats.totalCells);
+                
+            } catch (error) {
+                console.error('Error loading dataset statistics:', error);
+                // Keep default values if loading fails
+                document.getElementById('recordCount').textContent = '?';
+                document.getElementById('totalCells').textContent = '?';
+            }
         });
     </script>
 
     <!-- Footer -->
-    <footer class="bg-light border-top mt-5 py-3">
+    <footer class="footer-custom">
         <div class="container-fluid">
-            <div class="text-center text-muted small">
-                © 2025 Amir Asiaee and Kaveh Aryan - Independent research output, provided without warranty.
+            <div class="row">
+                <div class="col-md-4 mb-3 mb-md-0">
+                    <h6>INSITE</h6>
+                    <p class="small text-muted mb-0">Integrating scRNA-seq for T-cell Engineering</p>
+                </div>
+                <div class="col-md-4 mb-3 mb-md-0 text-center">
+                    <a href="index.html" class="text-muted me-3">Home</a>
+                    <a href="explore.html" class="text-muted me-3">Explore</a>
+                    <a href="help.html" class="text-muted me-3">Help</a>
+                    <a href="about.html" class="text-muted">About</a>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <p class="small text-muted mb-0">&copy; 2025 Amir Asiaee & Kaveh Aryan</p>
+                    <p class="small text-muted mb-0"><a href="https://www.herox.com/dataworks" target="_blank">DataWorks! Prize 2024</a></p>
+                </div>
             </div>
         </div>
     </footer>

@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About - INSITE</title>
+    <link rel="icon" type="image/png" href="images/icons/logo.png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="css/material/light.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+</head>
+<body class="light">
+    <!-- Mobile menu button -->
+    <button class="mobile-menu-btn" type="button" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
+                <div class="position-sticky pt-3">
+                    <div class="text-center mb-4">
+                        <a href="index.html">
+                            <img src="images/icons/logo.png" alt="INSITE Logo" class="logo">
+                        </a>
+                    </div>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="index.html">
+                                <i class="fas fa-home"></i> Home
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="explore.html">
+                                <i class="fas fa-search"></i> Explore Data
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="predict.html">
+                                <i class="fas fa-magic"></i> Predict
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="optimize.html">
+                                <i class="fas fa-bullseye"></i> Optimize
+                            </a>
+                        </li>
+                        <li class="nav-item mt-3 border-top pt-3">
+                            <a class="nav-link" href="help.html">
+                                <i class="fas fa-question-circle"></i> Help
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="about.html">
+                                <i class="fas fa-info-circle"></i> About
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Main content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2"><i class="fas fa-info-circle me-2"></i>About INSITE</h1>
+                </div>
+
+                <!-- Mission -->
+                <div class="card card-surface mb-4">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <h4 class="text-primary mb-3">Our Mission</h4>
+                                <p class="lead">
+                                    INSITE (<strong>In</strong>tegrating <strong>s</strong>cRNA-seq for <strong>T</strong>-cell <strong>E</strong>ngineering) provides researchers with interactive tools to explore, predict, and optimize T-cell responses using single-cell transcriptomics data.
+                                </p>
+                                <p>
+                                    By aggregating publicly available T-cell scRNA-seq datasets and providing intuitive visualization and analysis tools, we aim to accelerate discoveries in immunotherapy, vaccine development, and autoimmune disease research.
+                                </p>
+                            </div>
+                            <div class="col-md-4 text-center">
+                                <img src="images/icons/logo.png" alt="INSITE Logo" style="max-height: 150px;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Platform Features -->
+                <div class="card card-surface mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-star me-2"></i>Platform Features</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <div class="feature-box p-3 h-100">
+                                    <div class="feature-icon text-primary mb-2">
+                                        <i class="fas fa-search fa-2x"></i>
+                                    </div>
+                                    <h6>Explore</h6>
+                                    <p class="small text-muted">
+                                        Interactive visualization of T-cell datasets with multi-dimensional filtering. Compare expression profiles across perturbations, cell types, tissues, and donor conditions.
+                                    </p>
+                                    <ul class="small">
+                                        <li>UMAP visualization</li>
+                                        <li>Gene expression heatmaps</li>
+                                        <li>Smart filter suggestions</li>
+                                        <li>Multi-condition comparison</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="feature-box p-3 h-100">
+                                    <div class="feature-icon text-success mb-2">
+                                        <i class="fas fa-magic fa-2x"></i>
+                                    </div>
+                                    <h6>Predict</h6>
+                                    <p class="small text-muted">
+                                        Simulate perturbation effects by modifying gene expression levels. Predict how T-cells would respond to genetic or pharmacological interventions.
+                                    </p>
+                                    <ul class="small">
+                                        <li>In-silico gene perturbation</li>
+                                        <li>Expression level editing</li>
+                                        <li>Cell state prediction</li>
+                                        <li>Uncertainty quantification</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="feature-box p-3 h-100">
+                                    <div class="feature-icon text-warning mb-2">
+                                        <i class="fas fa-bullseye fa-2x"></i>
+                                    </div>
+                                    <h6>Optimize</h6>
+                                    <p class="small text-muted">
+                                        Define a target cell state and discover optimal gene combinations to achieve it. Find the most efficient paths to engineer desired T-cell phenotypes.
+                                    </p>
+                                    <ul class="small">
+                                        <li>Target state selection</li>
+                                        <li>Combinatorial optimization</li>
+                                        <li>Multi-gene knockouts</li>
+                                        <li>Ranked intervention strategies</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Data Sources -->
+                <div class="card card-surface mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-database me-2"></i>Data Sources</h5>
+                    </div>
+                    <div class="card-body">
+                        <h6>scBaseCount Repository</h6>
+                        <p>
+                            INSITE leverages the <strong>scBaseCount</strong> database, an AI agent-curated, uniformly processed repository of single-cell RNA sequencing data. scBaseCount aggregates data from public repositories including NCBI SRA and GEO, providing standardized metadata and consistent processing pipelines.
+                        </p>
+
+                        <div class="row mt-4">
+                            <div class="col-md-3 text-center mb-3">
+                                <div class="stat-box p-3 border rounded">
+                                    <h3 class="text-primary mb-0" id="aboutRecordCount">-</h3>
+                                    <small class="text-muted">Datasets</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3 text-center mb-3">
+                                <div class="stat-box p-3 border rounded">
+                                    <h3 class="text-success mb-0" id="aboutCellCount">-</h3>
+                                    <small class="text-muted">Total Cells</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3 text-center mb-3">
+                                <div class="stat-box p-3 border rounded">
+                                    <h3 class="text-info mb-0">2,000</h3>
+                                    <small class="text-muted">HVGs Analyzed</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3 text-center mb-3">
+                                <div class="stat-box p-3 border rounded">
+                                    <h3 class="text-warning mb-0" id="aboutPerturbationCount">-</h3>
+                                    <small class="text-muted">Perturbation Types</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h6 class="mt-4">Processing Pipeline</h6>
+                        <div class="pipeline-steps">
+                            <div class="d-flex align-items-center mb-2">
+                                <span class="badge bg-primary me-2">1</span>
+                                <span><strong>Raw Data:</strong> Seurat v5 RDS objects from scBaseCount T-cell corpus</span>
+                            </div>
+                            <div class="d-flex align-items-center mb-2">
+                                <span class="badge bg-primary me-2">2</span>
+                                <span><strong>Cell Typing:</strong> SingleR + marker gene scoring (CD4, CD8, Treg)</span>
+                            </div>
+                            <div class="d-flex align-items-center mb-2">
+                                <span class="badge bg-primary me-2">3</span>
+                                <span><strong>Normalization:</strong> Log-normalization per 10,000 counts</span>
+                            </div>
+                            <div class="d-flex align-items-center mb-2">
+                                <span class="badge bg-primary me-2">4</span>
+                                <span><strong>HVG Selection:</strong> Top 2,000 highly variable genes</span>
+                            </div>
+                            <div class="d-flex align-items-center mb-2">
+                                <span class="badge bg-primary me-2">5</span>
+                                <span><strong>Dimensionality Reduction:</strong> PCA + UMAP for visualization</span>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <span class="badge bg-primary me-2">6</span>
+                                <span><strong>Export:</strong> AnnData format with unified gene space</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Team -->
+                <div class="card card-surface mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-users me-2"></i>Team</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="team-avatar me-3">
+                                        <i class="fas fa-user-circle fa-3x text-primary"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0">Amir Asiaee</h6>
+                                        <small class="text-muted">Lead Developer & Computational Biologist</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="team-avatar me-3">
+                                        <i class="fas fa-user-circle fa-3x text-success"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0">Kaveh Aryan</h6>
+                                        <small class="text-muted">Platform Architect & Data Engineer</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Citation & Links -->
+                <div class="card card-surface mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-link me-2"></i>Citation & Resources</h5>
+                    </div>
+                    <div class="card-body">
+                        <h6>Citing INSITE</h6>
+                        <div class="bg-light p-3 rounded mb-3">
+                            <code class="small">
+                                Asiaee A, Aryan K. INSITE: Integrating scRNA-seq for T-cell Engineering.
+                                DataWorks! Prize 2024 Submission. https://insiteproject.github.io
+                            </code>
+                        </div>
+
+                        <h6 class="mt-4">Related Resources</h6>
+                        <ul>
+                            <li>
+                                <a href="https://www.biorxiv.org/content/10.1101/2025.02.27.640494" target="_blank">
+                                    scBaseCount: AI agent-curated single cell data repository
+                                </a>
+                            </li>
+                            <li>
+                                <a href="https://www.herox.com/dataworks" target="_blank">
+                                    DataWorks! Prize 2024
+                                </a>
+                            </li>
+                            <li>
+                                <a href="https://github.com/insiteproject" target="_blank">
+                                    <i class="fab fa-github me-1"></i>GitHub Repository
+                                </a>
+                            </li>
+                        </ul>
+
+                        <h6 class="mt-4">Contact</h6>
+                        <p class="mb-0">
+                            For questions, bug reports, or collaboration inquiries, please open an issue on our
+                            <a href="https://github.com/insiteproject/insiteproject.github.io/issues" target="_blank">GitHub repository</a>.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Disclaimer -->
+                <div class="alert alert-warning mb-4">
+                    <h6 class="alert-heading"><i class="fas fa-exclamation-triangle me-2"></i>Disclaimer</h6>
+                    <p class="mb-0 small">
+                        INSITE is a research tool provided for educational and exploratory purposes. Results should be validated experimentally before clinical application. This platform comes with no warranty, expressed or implied. The predictions generated are based on statistical models and may not accurately reflect biological outcomes.
+                    </p>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer-custom">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-4 mb-3 mb-md-0">
+                    <h6>INSITE</h6>
+                    <p class="small text-muted mb-0">Integrating scRNA-seq for T-cell Engineering</p>
+                </div>
+                <div class="col-md-4 mb-3 mb-md-0 text-center">
+                    <a href="index.html" class="text-muted me-3">Home</a>
+                    <a href="explore.html" class="text-muted me-3">Explore</a>
+                    <a href="help.html" class="text-muted me-3">Help</a>
+                    <a href="about.html" class="text-muted">About</a>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <p class="small text-muted mb-0">&copy; 2025 Amir Asiaee & Kaveh Aryan</p>
+                    <p class="small text-muted mb-0"><a href="https://www.herox.com/dataworks" target="_blank">DataWorks! Prize 2024</a></p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/common.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                const datasets = await dataService.loadDatasets();
+                const stats = await dataService.getStatistics(datasets);
+
+                document.getElementById('aboutRecordCount').textContent = stats.recordCount;
+
+                const formatCellCount = (count) => {
+                    if (count >= 1000000) return (count / 1000000).toFixed(1) + 'M';
+                    else if (count >= 1000) return (count / 1000).toFixed(0) + 'K';
+                    else return count.toString();
+                };
+
+                document.getElementById('aboutCellCount').textContent = formatCellCount(stats.totalCells);
+                document.getElementById('aboutPerturbationCount').textContent = stats.uniquePerturbations ?? '?';
+            } catch (error) {
+                console.error('Error loading statistics:', error);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -775,6 +775,118 @@ h1, h2, h3, h4, h5, h6 {
     text-align: center;
 }
 
+/* Footer styling */
+.footer-custom {
+    background-color: var(--md-sys-color-surface-container);
+    border-top: 1px solid var(--md-sys-color-outline-variant);
+    padding: 1.5rem 2rem;
+    margin-left: 240px;
+    margin-top: 2rem;
+}
+
+.footer-custom h6 {
+    color: var(--md-sys-color-primary);
+    font-weight: 600;
+}
+
+.footer-custom a {
+    text-decoration: none;
+    transition: color 0.2s ease-in-out;
+}
+
+.footer-custom a:hover {
+    color: var(--md-sys-color-primary) !important;
+}
+
+/* Feature box styling for About page */
+.feature-box {
+    background-color: var(--md-sys-color-surface-container-low);
+    border: 1px solid var(--md-sys-color-outline-variant);
+    border-radius: 12px;
+    transition: all 0.2s ease-in-out;
+}
+
+.feature-box:hover {
+    box-shadow: var(--md-sys-elevation-level2);
+    border-color: var(--md-sys-color-primary);
+}
+
+.feature-icon {
+    opacity: 0.9;
+}
+
+/* Stat box styling */
+.stat-box {
+    background-color: var(--md-sys-color-surface-container-low);
+    transition: all 0.2s ease-in-out;
+}
+
+.stat-box:hover {
+    background-color: var(--md-sys-color-primary-container);
+}
+
+/* Pipeline steps styling */
+.pipeline-steps .badge {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+/* Accordion styling for Help page */
+.accordion-button:not(.collapsed) {
+    background-color: var(--md-sys-color-primary-container);
+    color: var(--md-sys-color-on-primary-container);
+}
+
+.accordion-button:focus {
+    box-shadow: 0 0 0 0.2rem var(--md-sys-color-primary-container);
+}
+
+/* Hero section styling */
+.hero-section {
+    background: linear-gradient(135deg, var(--md-sys-color-primary-container) 0%, var(--md-sys-color-surface-container) 100%);
+    border-radius: 16px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+.hero-section h2 {
+    color: var(--md-sys-color-on-primary-container);
+}
+
+/* Badge improvements */
+.badge {
+    font-weight: 500;
+}
+
+/* Card surface improvements */
+.card-surface {
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+/* Better scrollbar styling */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--md-sys-color-surface-container);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--md-sys-color-outline);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--md-sys-color-primary);
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
     .heatmap-cell {
@@ -824,5 +936,14 @@ h1, h2, h3, h4, h5, h6 {
     
     .loading-message {
         font-size: 1rem;
+    }
+
+    .footer-custom {
+        margin-left: 0;
+        padding: 1rem;
+    }
+
+    .footer-custom .row > div {
+        text-align: center !important;
     }
 }

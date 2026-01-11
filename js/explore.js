@@ -4,12 +4,18 @@ let filteredDatasets = [];
 let allUmapData = [];
 let umapPlot = null;
 let genes = [];
+let displayGenes = []; // Limited subset of genes for display
 let currentExpression = {};
 let currentUncertainty = {};
 let filterRowCount = 1;
 let maxFilterRows = 2;
 let allFilterExpressions = []; // Store expression data for each filter set
 let allFilterUncertainties = []; // Store uncertainty data for each filter set
+
+// Performance limits
+const MAX_DISPLAY_GENES = 250;  // Max genes to show in heatmap
+const MAX_UMAP_POINTS_PER_SAMPLE = 50;  // Max UMAP points per sample
+const MAX_TOTAL_UMAP_POINTS = 20000;  // Max total UMAP points
 
 // Load datasets on page load
 document.addEventListener('DOMContentLoaded', function() {
@@ -29,14 +35,18 @@ async function loadDatasets() {
     try {
         datasets = await dataService.loadDatasets();
         genes = await dataService.loadGenes();
-        genes.sort(); // Sort alphabetically
+
+        // Keep gene order identical to highly_variable_genes_list.json because
+        // mean_expression_profile is stored as an array aligned to that order.
+        // Limit genes displayed to MAX_DISPLAY_GENES for performance.
+        displayGenes = genes.slice(0, MAX_DISPLAY_GENES);
+        console.log('Loaded', datasets.length, 'datasets and', genes.length, 'genes (displaying', displayGenes.length, ')');
+
         await loadAllUmapData();
-        populateFilters();
-        //updateVolcanoOptions(); // Initialize volcano options
+        await populateFilters(); // Wait for filters to be populated
         initializeUmapPlot();
-        applyFilters();
-        // Load initial visualization
-        updateVisualization();
+        await applyFilters(); // Wait for filters to be applied and expression computed
+        // updateVisualization is called inside applyFilters, no need to call again
     } catch (error) {
         console.error('Error loading datasets:', error);
     } finally {
@@ -59,6 +69,10 @@ async function populateFilters() {
         populateSelect('donorType_0', donorTypes);
         populateSelect('timePoint_0', timePoints);
         populateSelect('tissueOrgan_0', tissueOrgans);
+
+        // Add smart filtering - disable unavailable options
+        addFilterChangeListeners(0);
+        await updateFilterOptions(0);
     } catch (error) {
         console.error('Error populating filters:', error);
     }
@@ -73,6 +87,64 @@ function populateSelect(elementId, options) {
         optionElement.value = option;
         optionElement.textContent = option;
         select.appendChild(optionElement);
+    });
+}
+
+// Update filter options based on current selections - disable unavailable combinations
+async function updateFilterOptions(rowIndex = 0) {
+    // Get current filter values
+    const currentFilters = {
+        perturbation_type: document.getElementById(`perturbationType_${rowIndex}`)?.value || 'all',
+        t_cell_subtype: document.getElementById(`tcellSubtype_${rowIndex}`)?.value || 'all',
+        donor_type: document.getElementById(`donorType_${rowIndex}`)?.value || 'all',
+        time_point: document.getElementById(`timePoint_${rowIndex}`)?.value || 'all',
+        location: document.getElementById(`tissueOrgan_${rowIndex}`)?.value || 'all'
+    };
+
+    // Define filter config: selectId -> dataProperty
+    const filterConfig = [
+        { selectId: `perturbationType_${rowIndex}`, property: 'perturbation_type' },
+        { selectId: `tcellSubtype_${rowIndex}`, property: 't_cell_subtype' },
+        { selectId: `donorType_${rowIndex}`, property: 'donor_type' },
+        { selectId: `tissueOrgan_${rowIndex}`, property: 'location' }
+    ];
+
+    // Update each dropdown
+    for (const config of filterConfig) {
+        const select = document.getElementById(config.selectId);
+        if (!select) continue;
+
+        // Get available values given other current filters
+        const availableValues = await dataService.getAvailableValues(config.property, currentFilters);
+
+        // Update option states
+        Array.from(select.options).forEach(option => {
+            if (option.value === 'all') {
+                option.disabled = false;
+                option.style.color = '';
+            } else {
+                const isAvailable = availableValues.has(option.value);
+                option.disabled = !isAvailable;
+                option.style.color = isAvailable ? '' : '#ccc';
+            }
+        });
+    }
+}
+
+// Add change listeners to filter dropdowns for smart filtering
+function addFilterChangeListeners(rowIndex = 0) {
+    const selectIds = [
+        `perturbationType_${rowIndex}`,
+        `tcellSubtype_${rowIndex}`,
+        `donorType_${rowIndex}`,
+        `tissueOrgan_${rowIndex}`
+    ];
+
+    selectIds.forEach(selectId => {
+        const select = document.getElementById(selectId);
+        if (select) {
+            select.addEventListener('change', () => updateFilterOptions(rowIndex));
+        }
     });
 }
 
@@ -92,7 +164,7 @@ function addFilterRow() {
     newRow.innerHTML = `
         <div class="d-flex flex-wrap gap-3 align-items-end">
             <div class="flex-fill">
-                <label class="form-label small">Perturbation:</label>
+                <label class="form-label small">Condition / Perturbation:</label>
                 <select class="form-select" id="perturbationType_${rowIndex}">
                     <option value="all">All</option>
                 </select>
@@ -174,6 +246,10 @@ async function populateNewRowFilters(rowIndex) {
         populateSelect(`donorType_${rowIndex}`, donorTypes);
         populateSelect(`timePoint_${rowIndex}`, timePoints);
         populateSelect(`tissueOrgan_${rowIndex}`, tissueOrgans);
+
+        // Add smart filtering for the new row
+        addFilterChangeListeners(rowIndex);
+        await updateFilterOptions(rowIndex);
     } catch (error) {
         console.error('Error populating new row filters:', error);
     }
@@ -235,13 +311,21 @@ async function updateSelectionSummary() {
     }
 }
 
-// Load all UMAP data from datasets
+// Load all UMAP data from datasets with performance limits
 async function loadAllUmapData() {
     allUmapData = [];
-    
+
     datasets.forEach(dataset => {
         if (dataset.subsampled_umap && dataset.subsampled_umap.length > 0) {
-            dataset.subsampled_umap.forEach(point => {
+            // Limit points per sample
+            const points = dataset.subsampled_umap;
+            const maxPoints = Math.min(points.length, MAX_UMAP_POINTS_PER_SAMPLE);
+
+            // Subsample if needed (take evenly spaced points)
+            const step = points.length > maxPoints ? Math.floor(points.length / maxPoints) : 1;
+
+            for (let i = 0; i < points.length && allUmapData.length < MAX_TOTAL_UMAP_POINTS; i += step) {
+                const point = points[i];
                 allUmapData.push({
                     x: point[0],
                     y: point[1],
@@ -254,9 +338,17 @@ async function loadAllUmapData() {
                     location: dataset.location,
                     record_name: dataset.record_name
                 });
-            });
+            }
+
+            // Stop if we've reached the total limit
+            if (allUmapData.length >= MAX_TOTAL_UMAP_POINTS) {
+                console.log('Reached UMAP point limit:', MAX_TOTAL_UMAP_POINTS);
+                return;
+            }
         }
     });
+
+    console.log('Loaded', allUmapData.length, 'UMAP points');
 }
 
 // Initialize UMAP plot with all data points in gray
@@ -757,16 +849,27 @@ async function computeCurrentExpression(filters) {
 async function computeAllFilterExpressions(allFilterSets) {
     allFilterExpressions = [];
     allFilterUncertainties = [];
-    
+
+    console.log('computeAllFilterExpressions called with', allFilterSets.length, 'filter sets');
+    console.log('Global genes array length:', genes.length);
+
     for (let i = 0; i < allFilterSets.length; i++) {
         const filters = allFilterSets[i];
-        
+
         try {
             const expressionProfile = await dataService.computeExpressionProfile(filters);
-            
+
+            // Debug: check the expression profile
+            const profileGenes = Object.keys(expressionProfile);
+            console.log(`Filter ${i}: expressionProfile has ${profileGenes.length} genes`);
+            if (profileGenes.length > 0) {
+                const sampleGene = profileGenes[0];
+                console.log(`Sample: ${sampleGene} = `, expressionProfile[sampleGene]);
+            }
+
             const expression = {};
             const uncertainty = {};
-            
+
             genes.forEach(gene => {
                 if (expressionProfile[gene]) {
                     expression[gene] = expressionProfile[gene].mean;
@@ -776,7 +879,12 @@ async function computeAllFilterExpressions(allFilterSets) {
                     uncertainty[gene] = 0;
                 }
             });
-            
+
+            // Debug: check computed values
+            if (genes.length > 0) {
+                console.log(`Expression for ${genes[0]}: ${expression[genes[0]]}`);
+            }
+
             allFilterExpressions.push(expression);
             allFilterUncertainties.push(uncertainty);
             
@@ -804,7 +912,7 @@ async function computeAllFilterExpressions(allFilterSets) {
 // Render expression heatmaps for explore page
 function renderExploreHeatmaps() {
     const container = document.getElementById('expressionProfilesContainer');
-    if (!container || genes.length === 0) return;
+    if (!container || displayGenes.length === 0) return;
     
     // Clear existing content
     container.innerHTML = '';
@@ -823,13 +931,15 @@ function renderExploreHeatmaps() {
         // Create card for this heatmap
         const cardDiv = document.createElement('div');
         cardDiv.className = 'card card-surface mb-4';
+        const geneCountInfo = displayGenes.length < genes.length ?
+            `<small class="text-muted ms-2">(showing ${displayGenes.length} of ${genes.length} genes)</small>` : '';
         cardDiv.innerHTML = `
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 style="color: ${color};">
-                    <i class="fas fa-circle" style="color: ${color}; font-size: 0.8em;"></i> 
-                    ${label} Expression Profile
+                    <i class="fas fa-circle" style="color: ${color}; font-size: 0.8em;"></i>
+                    ${label} Expression Profile ${geneCountInfo}
                 </h5>
-                
+
             </div>
             <div class="card-body">
                 <p class="text-muted mb-3">
@@ -841,9 +951,9 @@ function renderExploreHeatmaps() {
         
         container.appendChild(cardDiv);
         
-        // Render the heatmap
+        // Render the heatmap (using displayGenes for performance)
         const heatmapContainer = document.getElementById(`exploreHeatmap_${i}`);
-        renderHeatmap(heatmapContainer, genes, expression, uncertainty, {
+        renderHeatmap(heatmapContainer, displayGenes, expression, uncertainty, {
             interactive: false
         });
         
@@ -875,7 +985,9 @@ function updateFilterDescription(filterIndex) {
     const activeFilters = [];
     Object.entries(filters).forEach(([key, value]) => {
         if (value !== 'all') {
-            const displayKey = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+            const displayKey =
+                key === 'perturbation_type' ? 'Condition' :
+                key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
             activeFilters.push(`${displayKey}: ${value}`);
         }
     });

@@ -121,16 +121,16 @@ class DataService {
         if (!datasets) {
             datasets = await this.loadDatasets();
         }
-        
+
         const totalCells = datasets.reduce((sum, dataset) => sum + (dataset.cell_count || 0), 0);
         const uniquePerturbations = new Set(datasets.map(d => d.perturbation_type)).size;
         const uniqueTCellTypes = new Set(datasets.map(d => d.t_cell_subtype)).size;
-        
-        // Count unique records (repositories) instead of data objects
-        const uniqueRecords = new Set(datasets.map(d => d.repo_id)).size;
-        
+
+        // Count number of data objects (samples/datasets), not unique repositories
+        const recordCount = datasets.length;
+
         return {
-            recordCount: uniqueRecords,
+            recordCount,
             totalCells,
             uniquePerturbations,
             uniqueTCellTypes
@@ -143,6 +143,35 @@ class DataService {
     clearCache() {
         this.datasetsCache = null;
         this.genesCache = null;
+    }
+
+    /**
+     * Get available values for a property given current filter selections
+     * This enables smart filtering - disabling options that would result in empty sets
+     * @param {string} property - The property to get available values for
+     * @param {Object} currentFilters - Current filter selections (excluding the target property)
+     * @returns {Promise<Set>} Set of available values
+     */
+    async getAvailableValues(property, currentFilters) {
+        const datasets = await this.loadDatasets();
+
+        // Filter datasets based on current selections (excluding the target property)
+        const filtered = datasets.filter(dataset => {
+            return Object.entries(currentFilters).every(([key, value]) => {
+                if (key === property) return true; // Skip the property we're checking
+                if (value === 'all' || value === null || value === undefined) return true;
+                if (key === 'location' && dataset.tissue_or_organ) {
+                    return dataset.tissue_or_organ === value;
+                }
+                if (key === 'perturbation_type' && dataset.perturbation) {
+                    return dataset.perturbation === value;
+                }
+                return dataset[key] === value;
+            });
+        });
+
+        // Return unique values of the target property from filtered results
+        return new Set(filtered.map(d => d[property]).filter(Boolean));
     }
 
     /**
@@ -188,10 +217,20 @@ class DataService {
         
         // Compute weighted average across datasets
         let datasetsWithExpression = 0;
-        filteredDatasets.forEach((dataset) => {
+        filteredDatasets.forEach((dataset, datasetIndex) => {
             const weight = dataset.n_obs || dataset.cell_count || 1; // Use cell count as weight
             totalWeight += weight;
-            
+
+            // Debug: log first dataset's structure
+            if (datasetIndex === 0) {
+                console.log('First dataset keys:', Object.keys(dataset));
+                console.log('First dataset has mean_expression_profile:', 'mean_expression_profile' in dataset);
+                if (dataset.mean_expression_profile) {
+                    console.log('Profile length:', dataset.mean_expression_profile.length, 'Expected:', genes.length);
+                    console.log('First 3 profile values:', dataset.mean_expression_profile.slice(0, 3));
+                }
+            }
+
             if (dataset.mean_expression_profile && dataset.mean_expression_profile.length === genes.length) {
                 datasetsWithExpression++;
                 genes.forEach((gene, index) => {
@@ -203,8 +242,13 @@ class DataService {
                 });
             }
         });
-        
+
         console.log('Datasets with expression data:', datasetsWithExpression, 'total weight:', totalWeight);
+        // Debug: log sample results
+        if (genes.length > 0) {
+            const sampleGene = genes[0];
+            console.log(`Sample result for ${sampleGene}: mean=${weightedMeans[sampleGene] / totalWeight}, std=${weightedStds[sampleGene] / totalWeight}`);
+        }
         
         // Normalize by total weight
         const result = {};
@@ -222,6 +266,7 @@ class DataService {
 
 /**
  * Generate colorbar HTML for heatmaps
+ * Thresholds calibrated for log-normalized scRNA-seq expression data
  * @returns {string} HTML string for colorbar
  */
 function generateColorbarHTML() {
@@ -230,21 +275,21 @@ function generateColorbarHTML() {
             <div class="colorbar-container">
                 <div class="colorbar-label">Expression (Mean)</div>
                 <div class="colorbar expression-colorbar">
-                    <div class="colorbar-item expr-low">0-2</div>
-                    <div class="colorbar-item expr-low-med">2-4</div>
-                    <div class="colorbar-item expr-medium">4-6</div>
-                    <div class="colorbar-item expr-med-high">6-8</div>
-                    <div class="colorbar-item expr-high">8-10</div>
+                    <div class="colorbar-item expr-low">&lt;0.25</div>
+                    <div class="colorbar-item expr-low-med">0.25-0.5</div>
+                    <div class="colorbar-item expr-medium">0.5-1</div>
+                    <div class="colorbar-item expr-med-high">1-2</div>
+                    <div class="colorbar-item expr-high">&gt;2</div>
                 </div>
             </div>
             <div class="colorbar-container">
                 <div class="colorbar-label">Uncertainty (Std)</div>
                 <div class="colorbar uncertainty-colorbar">
-                    <div class="colorbar-item uncert-very-low">0-0.4</div>
-                    <div class="colorbar-item uncert-low">0.4-0.8</div>
-                    <div class="colorbar-item uncert-medium">0.8-1.2</div>
-                    <div class="colorbar-item uncert-high">1.2-1.6</div>
-                    <div class="colorbar-item uncert-very-high">1.6-2.0</div>
+                    <div class="colorbar-item uncert-very-low">&lt;0.2</div>
+                    <div class="colorbar-item uncert-low">0.2-0.4</div>
+                    <div class="colorbar-item uncert-medium">0.4-0.7</div>
+                    <div class="colorbar-item uncert-high">0.7-1</div>
+                    <div class="colorbar-item uncert-very-high">&gt;1</div>
                 </div>
             </div>
         </div>`;
@@ -252,27 +297,29 @@ function generateColorbarHTML() {
 
 /**
  * Get CSS class based on expression level
- * @param {number} expression - Expression value
+ * Thresholds calibrated for log-normalized scRNA-seq data
+ * @param {number} expression - Expression value (log-normalized)
  * @returns {string} CSS class name
  */
 function getExpressionClass(expression) {
-    if (expression < 2) return 'expr-low';
-    if (expression < 4) return 'expr-low-med';
-    if (expression < 6) return 'expr-medium';
-    if (expression < 8) return 'expr-med-high';
+    if (expression < 0.25) return 'expr-low';
+    if (expression < 0.5) return 'expr-low-med';
+    if (expression < 1) return 'expr-medium';
+    if (expression < 2) return 'expr-med-high';
     return 'expr-high';
 }
 
 /**
  * Get CSS class based on uncertainty level
- * @param {number} uncertainty - Uncertainty value
+ * Thresholds calibrated for scRNA-seq standard deviation values
+ * @param {number} uncertainty - Uncertainty value (std)
  * @returns {string} CSS class name
  */
 function getUncertaintyClass(uncertainty) {
-    if (uncertainty < 0.4) return 'uncert-very-low';
-    if (uncertainty < 0.8) return 'uncert-low';
-    if (uncertainty < 1.2) return 'uncert-medium';
-    if (uncertainty < 1.6) return 'uncert-high';
+    if (uncertainty < 0.2) return 'uncert-very-low';
+    if (uncertainty < 0.4) return 'uncert-low';
+    if (uncertainty < 0.7) return 'uncert-medium';
+    if (uncertainty < 1) return 'uncert-high';
     return 'uncert-very-high';
 }
 

@@ -40,7 +40,8 @@ async function loadDatasets() {
 async function loadGenes() {
     try {
         genes = await dataService.loadGenes();
-        genes.sort(); // Sort alphabetically
+        // Keep gene order identical to highly_variable_genes_list.json because
+        // mean_expression_profile is stored as an array aligned to that order.
         // Don't compute expression here - wait for UI to be initialized
     } catch (error) {
         console.error('Error loading genes:', error);
@@ -381,7 +382,7 @@ function displayResults(results) {
 }
 
 // Toggle heatmap view between grid and collapsed (single row)
-function toggleHeatmapView(containerId) {
+function toggleOptimizeHeatmapView(containerId) {
     let rerenderCallback;
     
     if (containerId === 'optimizeHeatmap') {
@@ -391,4 +392,3 @@ function toggleHeatmapView(containerId) {
     // Use the common toggle function from common.js
     toggleHeatmapView(containerId, rerenderCallback);
 }
-
