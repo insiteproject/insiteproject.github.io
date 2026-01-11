@@ -38,6 +38,20 @@ def collapse_donor_type(donor_type: str) -> str:
     return "diseased"
 
 
+def flatten_mean_expression_profile(profile):
+    if not isinstance(profile, list) or not profile:
+        return profile
+    if isinstance(profile[0], list) and len(profile[0]) == 2:
+        flat = []
+        for pair in profile:
+            if isinstance(pair, list) and len(pair) == 2:
+                flat.extend(pair)
+            else:
+                flat.extend([0.0, 0.0])
+        return flat
+    return profile
+
+
 def update_datasets(datasets_path: Path, output_path: Path, h5ads_dir: Path, hvg_limit: int):
     with datasets_path.open("r", encoding="utf-8") as f:
         data = json.load(f)
@@ -53,8 +67,15 @@ def update_datasets(datasets_path: Path, output_path: Path, h5ads_dir: Path, hvg
     for repo in repos:
         for obj in repo.get("data_objects", []):
             profile = obj.get("mean_expression_profile")
-            if isinstance(profile, list) and len(profile) > hvg_limit:
-                obj["mean_expression_profile"] = profile[:hvg_limit]
+            if isinstance(profile, list) and profile:
+                if isinstance(profile[0], list):
+                    if len(profile) > hvg_limit:
+                        profile = profile[:hvg_limit]
+                else:
+                    max_len = hvg_limit * 2
+                    if len(profile) > max_len:
+                        profile = profile[:max_len]
+            obj["mean_expression_profile"] = flatten_mean_expression_profile(profile)
 
             obj["donor_type"] = collapse_donor_type(obj.get("donor_type"))
 

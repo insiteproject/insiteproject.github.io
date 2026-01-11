@@ -231,15 +231,31 @@ class DataService {
                 }
             }
 
-            if (dataset.mean_expression_profile && dataset.mean_expression_profile.length === genes.length) {
-                datasetsWithExpression++;
-                genes.forEach((gene, index) => {
-                    const profile = dataset.mean_expression_profile[index];
-                    if (profile && Array.isArray(profile) && profile.length === 2) {
-                        weightedMeans[gene] += profile[0] * weight; // mean is first element
-                        weightedStds[gene] += profile[1] * weight;  // std is second element
+            const profile = dataset.mean_expression_profile;
+            if (Array.isArray(profile)) {
+                const isFlat = profile.length === genes.length * 2 && typeof profile[0] === 'number';
+                const isPairList = profile.length === genes.length && Array.isArray(profile[0]);
+
+                if (isFlat || isPairList) {
+                    datasetsWithExpression++;
+                }
+
+                if (isFlat) {
+                    for (let i = 0; i < genes.length; i++) {
+                        const mean = profile[i * 2];
+                        const std = profile[i * 2 + 1];
+                        weightedMeans[genes[i]] += mean * weight;
+                        weightedStds[genes[i]] += std * weight;
                     }
-                });
+                } else if (isPairList) {
+                    genes.forEach((gene, index) => {
+                        const pair = profile[index];
+                        if (pair && Array.isArray(pair) && pair.length === 2) {
+                            weightedMeans[gene] += pair[0] * weight; // mean is first element
+                            weightedStds[gene] += pair[1] * weight;  // std is second element
+                        }
+                    });
+                }
             }
         });
 
