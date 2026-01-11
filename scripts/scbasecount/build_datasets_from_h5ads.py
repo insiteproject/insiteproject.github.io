@@ -41,6 +41,19 @@ def map_tissue_to_location(tissue: str) -> str:
     return tissue_lower.replace(" ", "-")
 
 
+def map_label_to_subtype(label: str) -> str:
+    if not label:
+        return "unknown"
+    label_lower = str(label).lower()
+    if "treg" in label_lower or "regulatory t" in label_lower:
+        return "Treg"
+    if "cd4" in label_lower:
+        return "CD4"
+    if "cd8" in label_lower:
+        return "CD8"
+    return "unknown"
+
+
 def map_final_type_to_subtype(final_type: str) -> str:
     type_mapping = {
         "CD4": "CD4",
@@ -51,17 +64,24 @@ def map_final_type_to_subtype(final_type: str) -> str:
     return type_mapping.get(final_type, "unknown")
 
 
+def infer_subtype_from_obs(adata: sc.AnnData, column: str) -> str:
+    if column not in adata.obs.columns:
+        return "unknown"
+    counts = adata.obs[column].value_counts()
+    for label in counts.index:
+        mapped = map_label_to_subtype(label)
+        if mapped != "unknown":
+            return mapped
+    return "unknown"
+
+
 def infer_donor_type(cell_line: str, tissue: str) -> str:
     if not cell_line:
-        return "unknown"
-    cell_line_lower = str(cell_line).lower()
-    if any(term in cell_line_lower for term in ["cancer", "tumor", "carcinoma", "melanoma", "leukemia"]):
-        return "cancer"
-    if any(term in cell_line_lower for term in ["covid", "infection", "infected", "inflammation"]):
         return "diseased"
+    cell_line_lower = str(cell_line).lower()
     if any(term in cell_line_lower for term in ["healthy", "normal", "control"]):
         return "healthy"
-    return "unknown"
+    return "diseased"
 
 
 def compute_mean_expression_profile(adata: sc.AnnData, hvg_list: List[str]) -> List[List[float]]:
@@ -148,6 +168,10 @@ def build_datasets(h5ads_dir: Path, hvg_list: List[str], n_umap_points: int) -> 
 
         location = map_tissue_to_location(tissue)
         t_cell_subtype = map_final_type_to_subtype(dominant_type)
+        if t_cell_subtype == "unknown":
+            t_cell_subtype = infer_subtype_from_obs(adata, "SingleR_label")
+        if t_cell_subtype == "unknown":
+            t_cell_subtype = infer_subtype_from_obs(adata, "tc_subtype")
         donor_type = infer_donor_type(cell_line, tissue)
 
         mean_expr = compute_mean_expression_profile(adata, hvg_list)
