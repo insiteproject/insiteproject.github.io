@@ -709,7 +709,8 @@ function renderDeltaTable(containerId, items, direction) {
     html += '<tbody>';
 
     items.forEach(item => {
-        const colorClass = item.delta > 0 ? 'text-success' : 'text-danger';
+        // Red for increase, blue for decrease
+        const colorClass = item.delta > 0 ? 'text-danger' : 'text-primary';
         const sign = item.delta > 0 ? '+' : '';
         html += `<tr>
             <td><strong>${item.gene}</strong></td>
@@ -746,14 +747,12 @@ function renderComparisonTable() {
     html += '<thead class="table-light"><tr>';
     html += '<th>Gene</th><th>Baseline</th>';
     html += '<th>Naive</th><th>Gaussian</th><th>Invariant</th><th>DAE</th>';
-    html += '<th>Δ Gaussian</th>';
     html += '</tr></thead><tbody>';
 
     displayGenes.forEach(gene => {
         const baseline = originalExpression[gene] || 0;
         const isKO = selectedGenes.has(gene);
         const rowClass = isKO ? 'table-warning' : '';
-        const gaussianDelta = (predictions.gaussian[gene] || 0) - baseline;
 
         html += `<tr class="${rowClass}">`;
         html += `<td><strong>${gene}</strong>${isKO ? ' <span class="badge bg-danger">KO</span>' : ''}</td>`;
@@ -762,14 +761,10 @@ function renderComparisonTable() {
         ['naive', 'gaussian', 'invariant', 'dae'].forEach(method => {
             const pred = predictions[method][gene] || 0;
             const delta = pred - baseline;
-            const colorClass = delta > 0.01 ? 'text-success' : (delta < -0.01 ? 'text-danger' : '');
+            // Blue for decrease, red for increase
+            const colorClass = delta > 0.01 ? 'text-danger' : (delta < -0.01 ? 'text-primary' : '');
             html += `<td class="${colorClass}">${pred.toFixed(2)}</td>`;
         });
-
-        // Add delta column
-        const deltaColorClass = gaussianDelta > 0.01 ? 'text-success' : (gaussianDelta < -0.01 ? 'text-danger' : '');
-        const deltaSign = gaussianDelta > 0 ? '+' : '';
-        html += `<td class="${deltaColorClass}"><strong>${deltaSign}${gaussianDelta.toFixed(2)}</strong></td>`;
 
         html += '</tr>';
     });
