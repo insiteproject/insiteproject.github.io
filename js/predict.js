@@ -726,26 +726,34 @@ function renderComparisonTable() {
     const container = document.getElementById('comparisonTable');
     if (!container) return;
 
-    // Get top changed genes (by absolute delta from Gaussian)
-    const gaussianDeltas = genes.map(gene => ({
-        gene,
-        delta: Math.abs((predictions.gaussian[gene] || 0) - (originalExpression[gene] || 0)),
-        isKO: selectedGenes.has(gene)
-    }));
+    // Separate KO genes and non-KO genes
+    const koGenes = Array.from(selectedGenes);
+    const nonKoGenes = genes.filter(g => !selectedGenes.has(g));
 
-    gaussianDeltas.sort((a, b) => b.delta - a.delta);
-    const topGenes = gaussianDeltas.slice(0, 20).map(d => d.gene);
+    // Sort non-KO genes by absolute delta from Gaussian
+    const nonKoDeltas = nonKoGenes.map(gene => ({
+        gene,
+        delta: Math.abs((predictions.gaussian[gene] || 0) - (originalExpression[gene] || 0))
+    }));
+    nonKoDeltas.sort((a, b) => b.delta - a.delta);
+
+    // Combine: KO genes first, then top non-KO genes
+    const maxNonKO = Math.max(0, 20 - koGenes.length);
+    const topNonKO = nonKoDeltas.slice(0, maxNonKO).map(d => d.gene);
+    const displayGenes = [...koGenes, ...topNonKO];
 
     let html = '<table class="table table-sm table-bordered">';
     html += '<thead class="table-light"><tr>';
     html += '<th>Gene</th><th>Baseline</th>';
     html += '<th>Naive</th><th>Gaussian</th><th>Invariant</th><th>DAE</th>';
+    html += '<th>Δ Gaussian</th>';
     html += '</tr></thead><tbody>';
 
-    topGenes.forEach(gene => {
+    displayGenes.forEach(gene => {
         const baseline = originalExpression[gene] || 0;
         const isKO = selectedGenes.has(gene);
         const rowClass = isKO ? 'table-warning' : '';
+        const gaussianDelta = (predictions.gaussian[gene] || 0) - baseline;
 
         html += `<tr class="${rowClass}">`;
         html += `<td><strong>${gene}</strong>${isKO ? ' <span class="badge bg-danger">KO</span>' : ''}</td>`;
@@ -757,6 +765,11 @@ function renderComparisonTable() {
             const colorClass = delta > 0.01 ? 'text-success' : (delta < -0.01 ? 'text-danger' : '');
             html += `<td class="${colorClass}">${pred.toFixed(2)}</td>`;
         });
+
+        // Add delta column
+        const deltaColorClass = gaussianDelta > 0.01 ? 'text-success' : (gaussianDelta < -0.01 ? 'text-danger' : '');
+        const deltaSign = gaussianDelta > 0 ? '+' : '';
+        html += `<td class="${deltaColorClass}"><strong>${deltaSign}${gaussianDelta.toFixed(2)}</strong></td>`;
 
         html += '</tr>';
     });
