@@ -5,7 +5,7 @@ let originalExpression = {};
 let originalUncertainty = {};
 let datasets = [];
 let currentFilters = {};
-let currentCellType = 'CD4';
+let currentCellType = null;  // Start as null so models load on first run
 
 // Phase B: Model storage
 const models = {
@@ -125,7 +125,10 @@ async function updatePredictVisualization() {
 
 // Phase B: Load all prediction models for a cell type
 async function loadAllModels(cellType) {
+    console.log(`loadAllModels called for cellType: ${cellType}`);
+
     if (!cellType || cellType === 'all') {
+        console.log('Clearing models (no valid cell type)');
         models.gaussian = null;
         models.invariant = null;
         models.dae = null;
@@ -134,6 +137,8 @@ async function loadAllModels(cellType) {
 
     const ct = cellType.toLowerCase();
     const baseUrl = `${dataService.baseUrl}data/predict/models/`;
+
+    console.log(`Loading models from: ${baseUrl}`);
 
     try {
         // Load all three models in parallel
@@ -145,15 +150,35 @@ async function loadAllModels(cellType) {
 
         if (gaussianRes.ok) {
             models.gaussian = await gaussianRes.json();
-            console.log(`Loaded Gaussian model for ${cellType}`);
+            console.log(`Loaded Gaussian model for ${cellType}:`, {
+                geneCount: models.gaussian.genes?.length,
+                hasPrecision: !!models.gaussian.precision,
+                precisionSize: models.gaussian.precision?.length
+            });
+        } else {
+            console.error(`Failed to load Gaussian model: ${gaussianRes.status}`);
         }
+
         if (invariantRes.ok) {
             models.invariant = await invariantRes.json();
-            console.log(`Loaded Invariant model for ${cellType}`);
+            console.log(`Loaded Invariant model for ${cellType}:`, {
+                geneCount: models.invariant.genes?.length,
+                hasPrecision: !!models.invariant.precision,
+                precisionSize: models.invariant.precision?.length
+            });
+        } else {
+            console.error(`Failed to load Invariant model: ${invariantRes.status}`);
         }
+
         if (daeRes.ok) {
             models.dae = await daeRes.json();
-            console.log(`Loaded DAE model for ${cellType}`);
+            console.log(`Loaded DAE model for ${cellType}:`, {
+                geneCount: models.dae.genes?.length,
+                hasMLP: !!models.dae.mlp,
+                layerCount: models.dae.mlp?.layers?.length
+            });
+        } else {
+            console.error(`Failed to load DAE model: ${daeRes.status}`);
         }
 
     } catch (error) {
@@ -193,7 +218,13 @@ async function computeOriginalExpression() {
     }
 
     try {
-        const expressionProfile = await dataService.computeExpressionProfile(currentFilters);
+        // IMPORTANT: Always use control-only datasets for baseline computation
+        const controlFilters = {
+            ...currentFilters,
+            perturbation_type: 'control'
+        };
+        console.log('Computing baseline with control-only filter:', controlFilters);
+        const expressionProfile = await dataService.computeExpressionProfile(controlFilters);
 
         genes.forEach(gene => {
             if (expressionProfile[gene]) {
@@ -300,12 +331,45 @@ async function applyKnockout() {
 
     showSpinner('Running predictions with all methods...');
 
+    console.log('=== applyKnockout called ===');
+    console.log('Selected genes:', Array.from(selectedGenes));
+    console.log('Current cell type:', currentCellType);
+    console.log('Models loaded:', {
+        gaussian: !!models.gaussian?.precision,
+        invariant: !!models.invariant?.precision,
+        dae: !!models.dae?.mlp
+    });
+
     try {
+        // Safety check: force load models if not loaded
+        const cellType = document.getElementById('predictTcellSubtype')?.value;
+        if (cellType && cellType !== 'all' && !models.gaussian?.precision) {
+            console.log('Models not loaded, forcing load for:', cellType);
+            await loadAllModels(cellType);
+            currentCellType = cellType;
+        }
         // Run all 4 prediction methods
+        console.log('Running Naive prediction...');
         predictions.naive = predictNaive();
+
+        console.log('Running Gaussian prediction...');
         predictions.gaussian = predictGaussian();
+
+        console.log('Running Invariant prediction...');
         predictions.invariant = predictInvariant();
+
+        console.log('Running DAE prediction...');
         predictions.dae = predictDAE();
+
+        // Log sample predictions for debugging
+        const sampleGene = genes[0];
+        console.log(`Sample predictions for ${sampleGene}:`, {
+            baseline: originalExpression[sampleGene],
+            naive: predictions.naive[sampleGene],
+            gaussian: predictions.gaussian[sampleGene],
+            invariant: predictions.invariant[sampleGene],
+            dae: predictions.dae[sampleGene]
+        });
 
         // Render results
         renderPredictedHeatmap();
