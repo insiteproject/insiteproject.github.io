@@ -228,6 +228,215 @@
                     </div>
                 </div>
 
+                <!-- Prediction Models -->
+                <div class="card card-surface mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-brain me-2"></i>Prediction Models</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>The <strong>Predict</strong> tab simulates gene knockout effects using statistical models trained on observational (control-only) T-cell data. This section explains how each method works.</p>
+
+                        <!-- Overview -->
+                        <div class="alert alert-primary">
+                            <h6 class="alert-heading"><i class="fas fa-info-circle me-2"></i>How Prediction Works</h6>
+                            <ol class="mb-0 small">
+                                <li><strong>Baseline:</strong> Compute average expression from control samples matching your filters</li>
+                                <li><strong>Knockout:</strong> Set selected gene(s) expression to zero</li>
+                                <li><strong>Propagate:</strong> Use learned gene-gene relationships to predict downstream effects</li>
+                                <li><strong>Compare:</strong> Show predicted vs baseline expression (Δ = delta)</li>
+                            </ol>
+                        </div>
+
+                        <!-- Method Cards -->
+                        <div class="row mt-4">
+                            <!-- Naive KO -->
+                            <div class="col-md-6 mb-4">
+                                <div class="card h-100 border-secondary">
+                                    <div class="card-header bg-secondary text-white">
+                                        <h6 class="mb-0"><i class="fas fa-ban me-2"></i>Method 1: Naive Knockout</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <p class="small"><strong>Plain English:</strong> Simply sets the knocked-out gene's expression to zero. Other genes remain unchanged. This is the baseline "null model" that assumes no downstream effects.</p>
+
+                                        <p class="small"><strong>When to use:</strong> As a control/reference to see what "no propagation" looks like.</p>
+
+                                        <div class="bg-light p-2 rounded mt-2">
+                                            <p class="small mb-1"><strong>Mathematical Formulation:</strong></p>
+                                            <code class="small">
+                                                x̂<sub>i</sub> = 0 &nbsp;&nbsp; if gene i is knocked out<br>
+                                                x̂<sub>i</sub> = μ<sub>i</sub> &nbsp;&nbsp; otherwise
+                                            </code>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Gaussian Conditional -->
+                            <div class="col-md-6 mb-4">
+                                <div class="card h-100 border-primary">
+                                    <div class="card-header bg-primary text-white">
+                                        <h6 class="mb-0"><i class="fas fa-chart-line me-2"></i>Method 2: Gaussian Conditional</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <p class="small"><strong>Plain English:</strong> Assumes gene expression follows a multivariate Gaussian distribution. When you "clamp" a gene to zero, the model computes the conditional expectation of all other genes given this constraint. Uses a <em>precision matrix</em> (inverse covariance) learned from control data.</p>
+
+                                        <p class="small"><strong>When to use:</strong> Default choice. Captures linear correlations between genes.</p>
+
+                                        <div class="bg-light p-2 rounded mt-2">
+                                            <p class="small mb-1"><strong>Mathematical Formulation:</strong></p>
+                                            <p class="small mb-1">Given precision matrix <strong>P</strong> = Σ<sup>-1</sup>, partition into knocked-out (S) and remaining (R) genes:</p>
+                                            <code class="small">
+                                                x̂<sub>R</sub> = μ<sub>R</sub> - P<sub>RS</sub> · P<sub>SS</sub><sup>-1</sup> · (0 - μ<sub>S</sub>)
+                                            </code>
+                                            <p class="small mt-2 mb-0 text-muted">This is the standard Gaussian conditional mean formula.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Invariant Precision -->
+                            <div class="col-md-6 mb-4">
+                                <div class="card h-100 border-success">
+                                    <div class="card-header bg-success text-white">
+                                        <h6 class="mb-0"><i class="fas fa-balance-scale me-2"></i>Method 3: Invariant Precision</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <p class="small"><strong>Plain English:</strong> Same math as Gaussian Conditional, but the precision matrix is learned differently. Before computing correlations, each dataset (BioProject) is mean-centered to remove batch effects. This captures <em>within-environment</em> gene relationships that may be more stable across different experimental conditions.</p>
+
+                                        <p class="small"><strong>When to use:</strong> When you suspect batch effects in training data, or want more robust predictions.</p>
+
+                                        <div class="bg-light p-2 rounded mt-2">
+                                            <p class="small mb-1"><strong>Mathematical Formulation:</strong></p>
+                                            <p class="small mb-1">For each environment e, center data: x̃<sup>(e)</sup> = x<sup>(e)</sup> - μ<sup>(e)</sup></p>
+                                            <p class="small mb-1">Compute precision from pooled centered data:</p>
+                                            <code class="small">
+                                                P<sub>inv</sub> = (Σ̃<sub>pooled</sub> + λI)<sup>-1</sup>
+                                            </code>
+                                            <p class="small mt-2 mb-0 text-muted">Inference formula same as Gaussian Conditional.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- DAE -->
+                            <div class="col-md-6 mb-4">
+                                <div class="card h-100 border-warning">
+                                    <div class="card-header bg-warning text-dark">
+                                        <h6 class="mb-0"><i class="fas fa-network-wired me-2"></i>Method 4: Deep Denoising Autoencoder (DAE)</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <p class="small"><strong>Plain English:</strong> A neural network trained to "denoise" corrupted gene expression. During training, random genes are masked to zero and the network learns to reconstruct them. For prediction, we mask the knocked-out genes and let the network predict their downstream effects.</p>
+
+                                        <p class="small"><strong>When to use:</strong> May capture non-linear relationships. Best for exploratory analysis.</p>
+
+                                        <div class="bg-light p-2 rounded mt-2">
+                                            <p class="small mb-1"><strong>Architecture:</strong></p>
+                                            <code class="small">
+                                                Input (250) → Dense(128, GELU) → Dense(250)
+                                            </code>
+                                            <p class="small mt-2 mb-1"><strong>Training:</strong></p>
+                                            <code class="small">
+                                                x̃ = mask(x, p=0.4) + noise(σ=0.07)<br>
+                                                Loss = MSE(f(x̃), x)
+                                            </code>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Detailed Math Section -->
+                        <div class="accordion mt-3" id="mathAccordion">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#mathDetails">
+                                        <i class="fas fa-square-root-alt me-2"></i>Detailed Mathematical Derivation
+                                    </button>
+                                </h2>
+                                <div id="mathDetails" class="accordion-collapse collapse" data-bs-parent="#mathAccordion">
+                                    <div class="accordion-body">
+                                        <h6>Gaussian Conditional Expectation</h6>
+                                        <p class="small">For a multivariate Gaussian X ~ N(μ, Σ), partitioned into sets S (knocked out) and R (remaining):</p>
+                                        <div class="bg-light p-3 rounded mb-3">
+                                            <p class="mb-2"><strong>Covariance form:</strong></p>
+                                            <code>E[X<sub>R</sub> | X<sub>S</sub> = x<sub>S</sub>] = μ<sub>R</sub> + Σ<sub>RS</sub>Σ<sub>SS</sub><sup>-1</sup>(x<sub>S</sub> - μ<sub>S</sub>)</code>
+
+                                            <p class="mb-2 mt-3"><strong>Precision form (used in INSITE):</strong></p>
+                                            <code>E[X<sub>R</sub> | X<sub>S</sub> = x<sub>S</sub>] = μ<sub>R</sub> - P<sub>RS</sub>P<sub>SS</sub><sup>-1</sup>(x<sub>S</sub> - μ<sub>S</sub>)</code>
+
+                                            <p class="small mt-3 mb-0 text-muted">where P = Σ<sup>-1</sup> is the precision matrix. The precision form is computationally more stable when Σ is near-singular.</p>
+                                        </div>
+
+                                        <h6>Log-space Transformation</h6>
+                                        <p class="small">Gene expression is modeled in log-space for better Gaussian approximation:</p>
+                                        <div class="bg-light p-3 rounded mb-3">
+                                            <code>
+                                                y = log(1 + x) &nbsp;&nbsp;&nbsp; (log1p transform)<br>
+                                                x̂ = exp(ŷ) - 1 &nbsp;&nbsp;&nbsp; (expm1 inverse)
+                                            </code>
+                                            <p class="small mt-2 mb-0 text-muted">Knockout in log-space: y<sub>KO</sub> = log(1 + 0) = 0</p>
+                                        </div>
+
+                                        <h6>Numerical Stability</h6>
+                                        <p class="small">To solve P<sub>SS</sub><sup>-1</sup>b, we use regularized linear solve instead of direct inversion:</p>
+                                        <div class="bg-light p-3 rounded">
+                                            <code>solve((P<sub>SS</sub> + λI), b) &nbsp;&nbsp; where λ = 10<sup>-6</sup></code>
+                                            <p class="small mt-2 mb-0 text-muted">This prevents numerical instability when P<sub>SS</sub> is ill-conditioned.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Caveats -->
+                        <div class="alert alert-warning mt-4">
+                            <h6 class="alert-heading"><i class="fas fa-exclamation-triangle me-2"></i>Important Caveats</h6>
+                            <ul class="small mb-0">
+                                <li><strong>Observational, not causal:</strong> Models learn correlations from control data, not true causal effects from perturbation experiments.</li>
+                                <li><strong>250 HVG panel:</strong> Only 250 highly variable genes are modeled. Effects on other genes cannot be predicted.</li>
+                                <li><strong>Cell-type specific:</strong> Each model is trained per cell type (CD4, CD8, Treg). Results don't transfer across types.</li>
+                                <li><strong>No domain alignment:</strong> Website models don't account for domain shift between training (scBaseCount) and real perturbation data.</li>
+                                <li><strong>Interpretation:</strong> Predictions show "expected correlational changes" not necessarily "causal consequences of knockout."</li>
+                            </ul>
+                        </div>
+
+                        <!-- Output Explanation -->
+                        <h6 class="mt-4"><i class="fas fa-table me-2 text-primary"></i>Understanding the Output</h6>
+                        <div class="table-responsive">
+                            <table class="table table-sm table-bordered">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Output</th>
+                                        <th>Description</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="small">
+                                    <tr>
+                                        <td><strong>Δ (Delta)</strong></td>
+                                        <td>Predicted expression minus baseline: Δ = x̂ - μ. Positive = upregulated, Negative = downregulated.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Top Upregulated</strong></td>
+                                        <td>Genes with largest positive Δ. These are predicted to increase when KO genes are knocked out.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Top Downregulated</strong></td>
+                                        <td>Genes with largest negative Δ. These are predicted to decrease (in addition to the KO gene itself).</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Method Comparison</strong></td>
+                                        <td>Side-by-side view of Δ values from all 4 methods. Agreement across methods suggests more robust prediction.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>CSV Export</strong></td>
+                                        <td>Download full predictions for all 250 genes across all methods for downstream analysis.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Data Information -->
                 <div class="card card-surface mb-4">
                     <div class="card-header">

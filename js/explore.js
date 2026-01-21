@@ -311,9 +311,61 @@ async function updateSelectionSummary() {
     }
 }
 
+async function loadUnifiedUmapData() {
+    try {
+        const response = await fetch(`${dataService.baseUrl}data/unified_umap.json`);
+        if (!response.ok) {
+            return null;
+        }
+        const payload = await response.json();
+        if (Array.isArray(payload)) {
+            return payload;
+        }
+        if (!payload || !Array.isArray(payload.points) || !Array.isArray(payload.fields)) {
+            return null;
+        }
+        const fields = payload.fields;
+        const idx = {
+            x: fields.indexOf('x'),
+            y: fields.indexOf('y'),
+            t_cell_subtype: fields.indexOf('t_cell_subtype'),
+            donor_type: fields.indexOf('donor_type'),
+            location: fields.indexOf('location'),
+            perturbation_type: fields.indexOf('perturbation_type'),
+            record_name: fields.indexOf('record_name')
+        };
+
+        const points = payload.points.map(row => ({
+            x: row[idx.x],
+            y: row[idx.y],
+            t_cell_subtype: row[idx.t_cell_subtype],
+            donor_type: row[idx.donor_type],
+            location: row[idx.location],
+            perturbation_type: row[idx.perturbation_type],
+            record_name: row[idx.record_name]
+        }));
+
+        if (points.length > MAX_TOTAL_UMAP_POINTS) {
+            const step = Math.ceil(points.length / MAX_TOTAL_UMAP_POINTS);
+            return points.filter((_, i) => i % step === 0).slice(0, MAX_TOTAL_UMAP_POINTS);
+        }
+        return points;
+    } catch (error) {
+        console.warn('Unified UMAP not available:', error);
+        return null;
+    }
+}
+
 // Load all UMAP data from datasets with performance limits
 async function loadAllUmapData() {
     allUmapData = [];
+
+    const unified = await loadUnifiedUmapData();
+    if (unified && unified.length > 0) {
+        allUmapData = unified;
+        console.log('Loaded', allUmapData.length, 'unified UMAP points');
+        return;
+    }
 
     datasets.forEach(dataset => {
         if (dataset.subsampled_umap && dataset.subsampled_umap.length > 0) {
@@ -379,13 +431,17 @@ function initializeUmapPlot() {
         yaxis: { title: 'UMAP 2' },
         hovermode: 'closest',
         plot_bgcolor: 'white',
-        paper_bgcolor: 'white'
+        paper_bgcolor: 'white',
+        width: 800,
+        height: 500,
+        dragmode: 'pan'
     };
 
     const config = {
-        responsive: true,
+        responsive: false,
         displayModeBar: true,
-        modeBarButtonsToRemove: ['pan2d', 'select2d', 'lasso2d', 'autoScale2d']
+        modeBarButtonsToRemove: ['select2d', 'lasso2d', 'autoScale2d'],
+        scrollZoom: true
     };
 
     Plotly.newPlot('umapPlot', [trace], layout, config);
@@ -729,9 +785,10 @@ function createVolcanoPlot(deResults, filterSet1, filterSet2) {
     };
     
     const config = {
-        responsive: true,
+        responsive: false,
         displayModeBar: true,
-        modeBarButtonsToRemove: ['pan2d', 'select2d', 'lasso2d', 'autoScale2d']
+        modeBarButtonsToRemove: ['select2d', 'lasso2d', 'autoScale2d'],
+        scrollZoom: true
     };
     
     Plotly.newPlot('volcanoPlotContainer', traces, layout, config);
