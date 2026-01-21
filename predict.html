@@ -147,13 +147,64 @@
                         </div>
                     </div>
                     <div class="card-body">
-                        <p class="text-muted mb-3">
-                            <small>Click on genes to knockout (they will appear grayed out with a red slash).
-                                Selected genes: <span id="selectedCount" class="fw-bold text-primary">0</span>
-                            </small>                            
-                        </p>
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                    <input type="text" class="form-control" id="geneSearch"
+                                           placeholder="Search genes..."
+                                           oninput="filterGeneGrid(this.value)">
+                                </div>
+                            </div>
+                            <div class="col-md-8">
+                                <p class="text-muted mb-0 pt-2">
+                                    <small>Click on genes to knockout (max 5). Selected: <span id="selectedCount" class="fw-bold text-primary">0</span></small>
+                                </p>
+                            </div>
+                        </div>
                         <div id="geneGrid" class="heatmap-container">
                             <!-- Genes will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Delta Visualization -->
+                <div class="card card-surface mb-4" id="deltaCard" style="display: none;">
+                    <div class="card-header">
+                        <h5><i class="fas fa-chart-line"></i> Expression Changes (Δ)</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6 class="text-success"><i class="fas fa-arrow-up"></i> Top Upregulated</h6>
+                                <div id="topUpregulated">
+                                    <!-- Populated by JavaScript -->
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="text-danger"><i class="fas fa-arrow-down"></i> Top Downregulated</h6>
+                                <div id="topDownregulated">
+                                    <!-- Populated by JavaScript -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Method Comparison Table -->
+                <div class="card card-surface mb-4" id="comparisonCard" style="display: none;">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5><i class="fas fa-columns"></i> Method Comparison</h5>
+                        <button class="btn btn-success btn-sm" onclick="exportPredictions()">
+                            <i class="fas fa-download"></i> Export CSV
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted small mb-3">
+                            Comparison of predicted expression across all 4 methods. Top 20 genes by absolute change shown.
+                        </p>
+                        <div class="table-responsive" id="comparisonTable">
+                            <!-- Populated by JavaScript -->
                         </div>
                     </div>
                 </div>
@@ -161,12 +212,20 @@
                 <!-- Predicted Expression Heatmap -->
                 <div class="card card-surface mb-4" id="predictedCard" style="display: none;">
                     <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5><i class="fas fa-chart-bar"></i> Predicted Expression After Knockout</h5>
-                        <button class="btn btn-outline-secondary btn-sm" onclick="togglePredictHeatmapView('predictedHeatmap')" id="predictedCollapseBtn">
-                            <i class="fas fa-compress-alt"></i> Collapse
-                        </button>
+                        <h5><i class="fas fa-chart-bar"></i> Predicted Expression Heatmap</h5>
+                        <div class="d-flex gap-2 align-items-center">
+                            <select class="form-select form-select-sm" id="displayMethod" style="width: auto;" onchange="changeDisplayMethod()">
+                                <option value="gaussian">Gaussian</option>
+                                <option value="invariant">Invariant</option>
+                                <option value="dae">DAE</option>
+                                <option value="naive">Naive</option>
+                            </select>
+                            <button class="btn btn-outline-secondary btn-sm" onclick="togglePredictHeatmapView('predictedHeatmap')">
+                                <i class="fas fa-compress-alt"></i> Collapse
+                            </button>
+                        </div>
                     </div>
-                    <div class="card-body">                        
+                    <div class="card-body">
                         <div id="predictedHeatmap" class="heatmap-container">
                             <!-- Predicted heatmap will be populated by JavaScript -->
                         </div>
