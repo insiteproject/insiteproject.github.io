@@ -34,11 +34,33 @@ document.addEventListener('DOMContentLoaded', function() {
             messageElement.textContent = 'Loading datasets and genes...';
         }
     }
-    loadDatasets();
-    loadGenes();
+    initializePage();
 });
 
-// Load datasets using DataService
+// Initialize page - load data in correct order
+async function initializePage() {
+    try {
+        // Load genes and datasets in parallel, but wait for both before continuing
+        const [loadedGenes, loadedDatasets] = await Promise.all([
+            dataService.loadGenes(),
+            dataService.loadDatasets()
+        ]);
+
+        genes = loadedGenes;
+        datasets = loadedDatasets;
+
+        console.log(`Loaded ${genes.length} genes and ${datasets.length} datasets`);
+
+        await populatePredictFilters();
+        await updatePredictVisualization();
+    } catch (error) {
+        console.error('Error initializing page:', error);
+    } finally {
+        hideSpinner();
+    }
+}
+
+// Load datasets using DataService (kept for compatibility)
 async function loadDatasets() {
     try {
         datasets = await dataService.loadDatasets();
@@ -186,15 +208,6 @@ async function loadAllModels(cellType) {
     }
 }
 
-// Load genes using DataService
-async function loadGenes() {
-    try {
-        genes = await dataService.loadGenes();
-    } catch (error) {
-        console.error('Error loading genes:', error);
-    }
-}
-
 // Phase B: Get filter key for caching
 function getFilterKey(filters) {
     return JSON.stringify({
@@ -214,6 +227,7 @@ async function computeOriginalExpression() {
         const cached = baselineCache.get(filterKey);
         originalExpression = cached.expression;
         originalUncertainty = cached.uncertainty;
+        console.log('Using cached baseline expression');
         return;
     }
 
@@ -226,15 +240,23 @@ async function computeOriginalExpression() {
         console.log('Computing baseline with control-only filter:', controlFilters);
         const expressionProfile = await dataService.computeExpressionProfile(controlFilters);
 
+        let nonZeroCount = 0;
         genes.forEach(gene => {
             if (expressionProfile[gene]) {
                 originalExpression[gene] = expressionProfile[gene].mean;
                 originalUncertainty[gene] = expressionProfile[gene].std;
+                if (expressionProfile[gene].mean > 0) nonZeroCount++;
             } else {
                 originalExpression[gene] = 0;
                 originalUncertainty[gene] = 0;
             }
         });
+
+        // Log summary for debugging
+        console.log(`Baseline computed: ${nonZeroCount}/${genes.length} genes have non-zero expression`);
+        if (genes.length > 0) {
+            console.log(`Sample baseline values: ${genes[0]}=${originalExpression[genes[0]]?.toFixed(3)}, ${genes[1]}=${originalExpression[genes[1]]?.toFixed(3)}`);
+        }
 
         // Cache the result
         baselineCache.set(filterKey, {
@@ -363,13 +385,29 @@ async function applyKnockout() {
 
         // Log sample predictions for debugging
         const sampleGene = genes[0];
-        console.log(`Sample predictions for ${sampleGene}:`, {
+        const sampleNonKO = genes.find(g => !selectedGenes.has(g));
+        console.log(`Sample predictions for ${sampleGene} (KO=${selectedGenes.has(sampleGene)}):`, {
             baseline: originalExpression[sampleGene],
             naive: predictions.naive[sampleGene],
             gaussian: predictions.gaussian[sampleGene],
             invariant: predictions.invariant[sampleGene],
             dae: predictions.dae[sampleGene]
         });
+        if (sampleNonKO) {
+            console.log(`Sample predictions for ${sampleNonKO} (non-KO):`, {
+                baseline: originalExpression[sampleNonKO],
+                naive: predictions.naive[sampleNonKO],
+                gaussian: predictions.gaussian[sampleNonKO],
+                invariant: predictions.invariant[sampleNonKO],
+                dae: predictions.dae[sampleNonKO]
+            });
+        }
+
+        // Check if methods are producing different results
+        const methodsWorking = checkMethodsWorking();
+        if (!methodsWorking) {
+            console.warn('WARNING: Prediction models may not be working - all methods returning similar values');
+        }
 
         // Render results
         renderPredictedHeatmap();
@@ -393,6 +431,28 @@ async function applyKnockout() {
             });
         }, 500);
     }
+}
+
+// Check if prediction methods are producing different results
+function checkMethodsWorking() {
+    // Check a few non-KO genes to see if methods differ from naive
+    let differences = 0;
+    const checkGenes = genes.filter(g => !selectedGenes.has(g)).slice(0, 10);
+
+    for (const gene of checkGenes) {
+        const naive = predictions.naive[gene];
+        const gaussian = predictions.gaussian[gene];
+        const invariant = predictions.invariant[gene];
+        const dae = predictions.dae[gene];
+
+        // Check if any method differs from naive by more than 0.1%
+        if (Math.abs(gaussian - naive) > naive * 0.001) differences++;
+        if (Math.abs(invariant - naive) > naive * 0.001) differences++;
+        if (Math.abs(dae - naive) > naive * 0.001) differences++;
+    }
+
+    console.log(`Methods check: ${differences} differences from naive in first ${checkGenes.length} genes`);
+    return differences > 0;
 }
 
 // Phase B: Method 1 - Naive KO (just set to zero)
