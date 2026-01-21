@@ -9,6 +9,11 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="css/material/light.css" rel="stylesheet">
     <link href="css/style.css" rel="stylesheet">
+    <!-- KaTeX for math rendering -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
 </head>
 <body class="light">
     <!-- Mobile menu button -->
@@ -260,12 +265,9 @@
 
                                         <p class="small"><strong>When to use:</strong> As a control/reference to see what "no propagation" looks like.</p>
 
-                                        <div class="bg-light p-2 rounded mt-2">
-                                            <p class="small mb-1"><strong>Mathematical Formulation:</strong></p>
-                                            <code class="small">
-                                                x̂<sub>i</sub> = 0 &nbsp;&nbsp; if gene i is knocked out<br>
-                                                x̂<sub>i</sub> = μ<sub>i</sub> &nbsp;&nbsp; otherwise
-                                            </code>
+                                        <div class="bg-light p-3 rounded mt-2">
+                                            <p class="small mb-2"><strong>Mathematical Formulation:</strong></p>
+                                            $$\hat{x}_i = \begin{cases} 0 & \text{if gene } i \text{ is knocked out} \\ \mu_i & \text{otherwise} \end{cases}$$
                                         </div>
                                     </div>
                                 </div>
@@ -282,12 +284,10 @@
 
                                         <p class="small"><strong>When to use:</strong> Default choice. Captures linear correlations between genes.</p>
 
-                                        <div class="bg-light p-2 rounded mt-2">
-                                            <p class="small mb-1"><strong>Mathematical Formulation:</strong></p>
-                                            <p class="small mb-1">Given precision matrix <strong>P</strong> = Σ<sup>-1</sup>, partition into knocked-out (S) and remaining (R) genes:</p>
-                                            <code class="small">
-                                                x̂<sub>R</sub> = μ<sub>R</sub> - P<sub>RS</sub> · P<sub>SS</sub><sup>-1</sup> · (0 - μ<sub>S</sub>)
-                                            </code>
+                                        <div class="bg-light p-3 rounded mt-2">
+                                            <p class="small mb-2"><strong>Mathematical Formulation:</strong></p>
+                                            <p class="small mb-2">Given precision matrix $\mathbf{P} = \Sigma^{-1}$, partition into knocked-out ($S$) and remaining ($R$) genes:</p>
+                                            $$\hat{\mathbf{x}}_R = \boldsymbol{\mu}_R - \mathbf{P}_{RS} \mathbf{P}_{SS}^{-1} (\mathbf{0} - \boldsymbol{\mu}_S)$$
                                             <p class="small mt-2 mb-0 text-muted">This is the standard Gaussian conditional mean formula.</p>
                                         </div>
                                     </div>
@@ -305,13 +305,12 @@
 
                                         <p class="small"><strong>When to use:</strong> When you suspect batch effects in training data, or want more robust predictions.</p>
 
-                                        <div class="bg-light p-2 rounded mt-2">
-                                            <p class="small mb-1"><strong>Mathematical Formulation:</strong></p>
-                                            <p class="small mb-1">For each environment e, center data: x̃<sup>(e)</sup> = x<sup>(e)</sup> - μ<sup>(e)</sup></p>
+                                        <div class="bg-light p-3 rounded mt-2">
+                                            <p class="small mb-2"><strong>Mathematical Formulation:</strong></p>
+                                            <p class="small mb-1">For each environment $e$, center data:</p>
+                                            $$\tilde{\mathbf{x}}^{(e)} = \mathbf{x}^{(e)} - \boldsymbol{\mu}^{(e)}$$
                                             <p class="small mb-1">Compute precision from pooled centered data:</p>
-                                            <code class="small">
-                                                P<sub>inv</sub> = (Σ̃<sub>pooled</sub> + λI)<sup>-1</sup>
-                                            </code>
+                                            $$\mathbf{P}_{\text{inv}} = \left(\tilde{\Sigma}_{\text{pooled}} + \lambda \mathbf{I}\right)^{-1}$$
                                             <p class="small mt-2 mb-0 text-muted">Inference formula same as Gaussian Conditional.</p>
                                         </div>
                                     </div>
@@ -329,16 +328,12 @@
 
                                         <p class="small"><strong>When to use:</strong> May capture non-linear relationships. Best for exploratory analysis.</p>
 
-                                        <div class="bg-light p-2 rounded mt-2">
-                                            <p class="small mb-1"><strong>Architecture:</strong></p>
-                                            <code class="small">
-                                                Input (250) → Dense(128, GELU) → Dense(250)
-                                            </code>
-                                            <p class="small mt-2 mb-1"><strong>Training:</strong></p>
-                                            <code class="small">
-                                                x̃ = mask(x, p=0.4) + noise(σ=0.07)<br>
-                                                Loss = MSE(f(x̃), x)
-                                            </code>
+                                        <div class="bg-light p-3 rounded mt-2">
+                                            <p class="small mb-2"><strong>Architecture:</strong></p>
+                                            <p class="small mb-1">$\text{Input}(250) \rightarrow \text{Dense}(128, \text{GELU}) \rightarrow \text{Dense}(250)$</p>
+                                            <p class="small mt-2 mb-2"><strong>Training:</strong></p>
+                                            $$\tilde{\mathbf{x}} = \text{mask}(\mathbf{x}, p=0.4) + \mathcal{N}(0, \sigma^2), \quad \sigma = 0.07$$
+                                            $$\mathcal{L} = \text{MSE}(f(\tilde{\mathbf{x}}), \mathbf{x})$$
                                         </div>
                                     </div>
                                 </div>
@@ -356,48 +351,34 @@
                                 <div id="mathDetails" class="accordion-collapse collapse" data-bs-parent="#mathAccordion">
                                     <div class="accordion-body">
                                         <h6>Gaussian Conditional Expectation</h6>
-                                        <p class="small">For a multivariate Gaussian X ~ N(μ, Σ), partitioned into sets S (knocked out) and R (remaining):</p>
+                                        <p class="small">For a multivariate Gaussian $\mathbf{X} \sim \mathcal{N}(\boldsymbol{\mu}, \Sigma)$, partitioned into sets $S$ (knocked out) and $R$ (remaining):</p>
                                         <div class="bg-light p-3 rounded mb-3">
                                             <p class="mb-2"><strong>Covariance form:</strong></p>
-                                            <code>E[X<sub>R</sub> | X<sub>S</sub> = x<sub>S</sub>] = μ<sub>R</sub> + Σ<sub>RS</sub>Σ<sub>SS</sub><sup>-1</sup>(x<sub>S</sub> - μ<sub>S</sub>)</code>
+                                            $$\mathbb{E}[\mathbf{X}_R \mid \mathbf{X}_S = \mathbf{x}_S] = \boldsymbol{\mu}_R + \Sigma_{RS}\Sigma_{SS}^{-1}(\mathbf{x}_S - \boldsymbol{\mu}_S)$$
 
                                             <p class="mb-2 mt-3"><strong>Precision form (used in INSITE):</strong></p>
-                                            <code>E[X<sub>R</sub> | X<sub>S</sub> = x<sub>S</sub>] = μ<sub>R</sub> - P<sub>RS</sub>P<sub>SS</sub><sup>-1</sup>(x<sub>S</sub> - μ<sub>S</sub>)</code>
+                                            $$\mathbb{E}[\mathbf{X}_R \mid \mathbf{X}_S = \mathbf{x}_S] = \boldsymbol{\mu}_R - \mathbf{P}_{RS}\mathbf{P}_{SS}^{-1}(\mathbf{x}_S - \boldsymbol{\mu}_S)$$
 
-                                            <p class="small mt-3 mb-0 text-muted">where P = Σ<sup>-1</sup> is the precision matrix. The precision form is computationally more stable when Σ is near-singular.</p>
+                                            <p class="small mt-3 mb-0 text-muted">where $\mathbf{P} = \Sigma^{-1}$ is the precision matrix. The precision form is computationally more stable when $\Sigma$ is near-singular.</p>
                                         </div>
 
                                         <h6>Log-space Transformation</h6>
                                         <p class="small">Gene expression is modeled in log-space for better Gaussian approximation:</p>
                                         <div class="bg-light p-3 rounded mb-3">
-                                            <code>
-                                                y = log(1 + x) &nbsp;&nbsp;&nbsp; (log1p transform)<br>
-                                                x̂ = exp(ŷ) - 1 &nbsp;&nbsp;&nbsp; (expm1 inverse)
-                                            </code>
-                                            <p class="small mt-2 mb-0 text-muted">Knockout in log-space: y<sub>KO</sub> = log(1 + 0) = 0</p>
+                                            $$y = \log(1 + x) \quad \text{(log1p transform)}$$
+                                            $$\hat{x} = \exp(\hat{y}) - 1 \quad \text{(expm1 inverse)}$$
+                                            <p class="small mt-2 mb-0 text-muted">Knockout in log-space: $y_{\text{KO}} = \log(1 + 0) = 0$</p>
                                         </div>
 
                                         <h6>Numerical Stability</h6>
-                                        <p class="small">To solve P<sub>SS</sub><sup>-1</sup>b, we use regularized linear solve instead of direct inversion:</p>
+                                        <p class="small">To solve $\mathbf{P}_{SS}^{-1}\mathbf{b}$, we use regularized linear solve instead of direct inversion:</p>
                                         <div class="bg-light p-3 rounded">
-                                            <code>solve((P<sub>SS</sub> + λI), b) &nbsp;&nbsp; where λ = 10<sup>-6</sup></code>
-                                            <p class="small mt-2 mb-0 text-muted">This prevents numerical instability when P<sub>SS</sub> is ill-conditioned.</p>
+                                            $$\text{solve}\left((\mathbf{P}_{SS} + \lambda \mathbf{I}), \mathbf{b}\right) \quad \text{where } \lambda = 10^{-6}$$
+                                            <p class="small mt-2 mb-0 text-muted">This prevents numerical instability when $\mathbf{P}_{SS}$ is ill-conditioned.</p>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-
-                        <!-- Caveats -->
-                        <div class="alert alert-warning mt-4">
-                            <h6 class="alert-heading"><i class="fas fa-exclamation-triangle me-2"></i>Important Caveats</h6>
-                            <ul class="small mb-0">
-                                <li><strong>Observational, not causal:</strong> Models learn correlations from control data, not true causal effects from perturbation experiments.</li>
-                                <li><strong>250 HVG panel:</strong> Only 250 highly variable genes are modeled. Effects on other genes cannot be predicted.</li>
-                                <li><strong>Cell-type specific:</strong> Each model is trained per cell type (CD4, CD8, Treg). Results don't transfer across types.</li>
-                                <li><strong>No domain alignment:</strong> Website models don't account for domain shift between training (scBaseCount) and real perturbation data.</li>
-                                <li><strong>Interpretation:</strong> Predictions show "expected correlational changes" not necessarily "causal consequences of knockout."</li>
-                            </ul>
                         </div>
 
                         <!-- Output Explanation -->
@@ -412,20 +393,20 @@
                                 </thead>
                                 <tbody class="small">
                                     <tr>
-                                        <td><strong>Δ (Delta)</strong></td>
-                                        <td>Predicted expression minus baseline: Δ = x̂ - μ. Positive = upregulated, Negative = downregulated.</td>
+                                        <td><strong>$\Delta$ (Delta)</strong></td>
+                                        <td>Predicted expression minus baseline: $\Delta = \hat{x} - \mu$. Positive = upregulated, Negative = downregulated.</td>
                                     </tr>
                                     <tr>
                                         <td><strong>Top Upregulated</strong></td>
-                                        <td>Genes with largest positive Δ. These are predicted to increase when KO genes are knocked out.</td>
+                                        <td>Genes with largest positive $\Delta$. These are predicted to increase when KO genes are knocked out.</td>
                                     </tr>
                                     <tr>
                                         <td><strong>Top Downregulated</strong></td>
-                                        <td>Genes with largest negative Δ. These are predicted to decrease (in addition to the KO gene itself).</td>
+                                        <td>Genes with largest negative $\Delta$. These are predicted to decrease (in addition to the KO gene itself).</td>
                                     </tr>
                                     <tr>
                                         <td><strong>Method Comparison</strong></td>
-                                        <td>Side-by-side view of Δ values from all 4 methods. Agreement across methods suggests more robust prediction.</td>
+                                        <td>Side-by-side view of $\Delta$ values from all 4 methods. Agreement across methods suggests more robust prediction.</td>
                                     </tr>
                                     <tr>
                                         <td><strong>CSV Export</strong></td>
