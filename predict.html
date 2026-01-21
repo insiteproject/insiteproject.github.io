@@ -168,6 +168,36 @@
                     </div>
                 </div>
 
+                <!-- Prediction Method Selector -->
+                <div class="card card-surface mb-4" id="methodCard" style="display: none;">
+                    <div class="card-body py-3">
+                        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="fw-semibold"><i class="fas fa-flask me-2"></i>Prediction Method:</span>
+                                <div class="btn-group" role="group" aria-label="Prediction method selector">
+                                    <input type="radio" class="btn-check" name="predMethod" id="methodGaussian" value="gaussian" checked onchange="changeDisplayMethod()">
+                                    <label class="btn btn-outline-primary" for="methodGaussian">
+                                        <i class="fas fa-chart-line me-1"></i>Gaussian
+                                    </label>
+                                    <input type="radio" class="btn-check" name="predMethod" id="methodInvariant" value="invariant" onchange="changeDisplayMethod()">
+                                    <label class="btn btn-outline-success" for="methodInvariant">
+                                        <i class="fas fa-balance-scale me-1"></i>Invariant
+                                    </label>
+                                    <input type="radio" class="btn-check" name="predMethod" id="methodDAE" value="dae" onchange="changeDisplayMethod()">
+                                    <label class="btn btn-outline-warning" for="methodDAE">
+                                        <i class="fas fa-network-wired me-1"></i>DAE
+                                    </label>
+                                    <input type="radio" class="btn-check" name="predMethod" id="methodNaive" value="naive" onchange="changeDisplayMethod()">
+                                    <label class="btn btn-outline-secondary" for="methodNaive">
+                                        <i class="fas fa-ban me-1"></i>Naive
+                                    </label>
+                                </div>
+                            </div>
+                            <small class="text-muted">Results below update based on selected method</small>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Delta Visualization -->
                 <div class="card card-surface mb-4" id="deltaCard" style="display: none;">
                     <div class="card-header">
@@ -213,17 +243,9 @@
                 <div class="card card-surface mb-4" id="predictedCard" style="display: none;">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h5><i class="fas fa-chart-bar"></i> Predicted Expression Heatmap</h5>
-                        <div class="d-flex gap-2 align-items-center">
-                            <select class="form-select form-select-sm" id="displayMethod" style="width: auto;" onchange="changeDisplayMethod()">
-                                <option value="gaussian">Gaussian</option>
-                                <option value="invariant">Invariant</option>
-                                <option value="dae">DAE</option>
-                                <option value="naive">Naive</option>
-                            </select>
-                            <button class="btn btn-outline-secondary btn-sm" onclick="togglePredictHeatmapView('predictedHeatmap')">
-                                <i class="fas fa-compress-alt"></i> Collapse
-                            </button>
-                        </div>
+                        <button class="btn btn-outline-secondary btn-sm" onclick="togglePredictHeatmapView('predictedHeatmap')">
+                            <i class="fas fa-compress-alt"></i> Collapse
+                        </button>
                     </div>
                     <div class="card-body">
                         <div id="predictedHeatmap" class="heatmap-container">

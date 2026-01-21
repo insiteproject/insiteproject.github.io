@@ -415,6 +415,7 @@ async function applyKnockout() {
         renderComparisonTable();
 
         // Show result cards
+        document.getElementById('methodCard').style.display = 'block';
         document.getElementById('predictedCard').style.display = 'block';
         document.getElementById('deltaCard').style.display = 'block';
         document.getElementById('comparisonCard').style.display = 'block';
@@ -656,10 +657,16 @@ function gelu(x) {
     return 0.5 * x * (1 + Math.tanh(Math.sqrt(2 / Math.PI) * (x + 0.044715 * x * x * x)));
 }
 
+// Get currently selected prediction method from radio buttons
+function getSelectedMethod() {
+    const selected = document.querySelector('input[name="predMethod"]:checked');
+    return selected?.value || 'gaussian';
+}
+
 // Phase B: Render predicted heatmap (using Gaussian as default display)
 function renderPredictedHeatmap() {
     const container = document.getElementById('predictedHeatmap');
-    const method = document.getElementById('displayMethod')?.value || 'gaussian';
+    const method = getSelectedMethod();
     const expression = predictions[method] || predictions.gaussian || predictions.naive;
 
     // Compute uncertainty (0 for KO genes)
@@ -676,7 +683,7 @@ function renderPredictedHeatmap() {
 
 // Phase B: Render delta visualization
 function renderDeltaVisualization() {
-    const method = document.getElementById('displayMethod')?.value || 'gaussian';
+    const method = getSelectedMethod();
     const pred = predictions[method] || predictions.gaussian;
 
     // Calculate deltas
@@ -686,16 +693,19 @@ function renderDeltaVisualization() {
         deltas.push({ gene, delta, isKO: selectedGenes.has(gene) });
     });
 
-    // Sort by delta (excluding KO genes for ranking)
+    // Filter to non-KO genes only
     const nonKO = deltas.filter(d => !d.isKO);
-    nonKO.sort((a, b) => b.delta - a.delta);
 
-    // Top upregulated
-    const topUp = nonKO.slice(0, 10);
+    // Separate into truly upregulated (delta > 0) and downregulated (delta < 0)
+    const upregulated = nonKO.filter(d => d.delta > 0).sort((a, b) => b.delta - a.delta);
+    const downregulated = nonKO.filter(d => d.delta < 0).sort((a, b) => a.delta - b.delta);
+
+    // Top upregulated (only genes with positive delta)
+    const topUp = upregulated.slice(0, 10);
     renderDeltaTable('topUpregulated', topUp, 'up');
 
-    // Top downregulated
-    const topDown = nonKO.slice(-10).reverse();
+    // Top downregulated (only genes with negative delta)
+    const topDown = downregulated.slice(0, 10);
     renderDeltaTable('topDownregulated', topDown, 'down');
 }
 
@@ -703,6 +713,15 @@ function renderDeltaVisualization() {
 function renderDeltaTable(containerId, items, direction) {
     const container = document.getElementById(containerId);
     if (!container) return;
+
+    // Show message if no genes match the criteria
+    if (items.length === 0) {
+        const msg = direction === 'up'
+            ? 'No genes predicted to increase'
+            : 'No genes predicted to decrease';
+        container.innerHTML = `<p class="text-muted small fst-italic mb-0">${msg}</p>`;
+        return;
+    }
 
     let html = '<table class="table table-sm table-bordered mb-0">';
     html += '<thead class="table-light"><tr><th>Gene</th><th>Δ Expression</th></tr></thead>';
